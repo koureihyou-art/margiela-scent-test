@@ -1338,7 +1338,7 @@ updateConditional();
 validateCard(0);
 
   // iOS Safari reliable path
-  el.addEventListener("touchend", handler, { passive: false });
+  el.addEventListener("click", handler, { passive: false });
   // Desktop fallback
   el.addEventListener("click", handler, { passive: false });
 });
@@ -1394,7 +1394,7 @@ validateCard(0);
         setNote(7, state.impression.length > 0, state.impression.length ? "Ready." : "Select up to 2 impressions.");
       }
     }
-
+     
     // ---------------- Restart / Copy ----------------
     btnRestart.addEventListener("click", () => {
       state.level = null;
@@ -1436,7 +1436,18 @@ validateCard(0);
         showToast("Copy blocked by browser (iPad Safari).");
       }
     });
-
+    // 强制修复 iPad 点击穿透和失效
+document.addEventListener('click', function(e) {
+    const opt = e.target.closest('.opt');
+    if (opt) {
+        // 这里调用你原有的处理函数，比如你原来的函数叫 handleSelect(opt)
+        // 这样即使之前的监听器失效，这个全局监听也能捕捉到
+        console.log("检测到点击:", opt.dataset.val);
+        // 确保当前活跃的卡片 pointer-events 是 auto
+        const activeCard = document.querySelector('.card.active');
+        if (activeCard) activeCard.style.pointerEvents = 'auto';
+    }
+}, { passive: true });
     
     
 
@@ -1447,6 +1458,7 @@ validateCard(0);
   </script>
 </body>
 </html>
+
 
 
 
