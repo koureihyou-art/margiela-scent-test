@@ -1018,7 +1018,24 @@
       }
     }
 
-    document.querySelectorAll(".opt").forEach(el => el.addEventListener("click", () => toggleOption(el), {passive:true}));
+    document.querySelectorAll(".opt").forEach((el) => {
+  const handler = (e) => {
+    // iPad Safari: make sure tap triggers selection reliably
+    e.preventDefault();
+    e.stopPropagation();
+    toggleOption(el);
+  };
+
+  // Works best across iPad / desktop / Android
+  el.addEventListener("pointerup", handler, { passive: false });
+
+  // Fallback for older iOS
+  el.addEventListener("touchend", handler, { passive: false });
+
+  // Desktop fallback
+  el.addEventListener("click", handler, { passive: false });
+});
+
 
     cityInput.addEventListener("input", () => { state.city = cityInput.value.trim(); });
 
@@ -1121,3 +1138,4 @@
   </script>
 </body>
 </html>
+
