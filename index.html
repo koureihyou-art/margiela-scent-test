@@ -1127,14 +1127,25 @@ reasonLines.innerHTML = `
         card.className = "scentCard";
         card.style.animationDelay = `${idx * 90}ms`;
         card.innerHTML = `
-          <div class="scentTop">
-            <div>
-              <div class="rank">Top ${idx+1}</div>
-              <div class="sname">${p.name}</div>
-            </div>
-            <div class="rank">${Math.round(p._score)}</div>
-          </div>
-          <div class="scentBody">
+  <div class="scentTop">
+    <div>
+      <div class="rank">Top ${idx+1}</div>
+      <div class="sname">${p.name}</div>
+    </div>
+    <div class="rank">${Math.round(p._score)}</div>
+  </div>
+  <div class="scentBody">
+    <div class="imgWrap">
+      <img src="${p.img}" alt="${p.name}">
+    </div>
+    <div>
+      <p class="sdesc">${p.desc}</p>
+      <div class="tags" style="margin-top:10px">
+        ${p.tags.map(t => `<span class="tag">${t}</span>`).join("")}
+      </div>
+    </div>
+  </div>
+`;
            
             <div>
               <p class="sdesc">${p.desc}</p>
@@ -1387,6 +1398,7 @@ document.querySelectorAll(".opt").forEach((el) => {
   </script>
 </body>
 </html>
+
 
 
 
