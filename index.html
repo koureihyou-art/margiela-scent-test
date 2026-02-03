@@ -692,29 +692,11 @@
       }
     }
 
-    document.querySelectorAll(".opt").forEach(el => {
-      el.addEventListener("click", () => toggleOption(el), {passive:true});
-    });
-
+   
     // city input
     cityInput.addEventListener("input", () => { state.city = cityInput.value.trim(); });
 
-    // ---------------- Buttons (Back/Next) ----------------
-    for (let i=0;i<=8;i++){
-      const b = document.getElementById(`back${i}`);
-      const n = document.getElementById(`next${i}`);
-      if (b) b.addEventListener("click", () => goBack());
-      if (n) n.addEventListener("click", () => {
-        if (i === 7){
-          // going to results
-          renderResults();
-          goNext();
-        } else if (i < 8){
-          if (i === 4) updateConditional();
-          goNext();
-        }
-      });
-    }
+ 
 
    // ---------------- Weather → Climate (no API key) ----------------
 async function hydrateWeatherFromCity(){
@@ -1280,23 +1262,26 @@ reasonLines.innerHTML = `
       }
     }
 
-    document.querySelectorAll(".opt").forEach((el) => {
+    let __lastTapAt = 0;
+
+document.querySelectorAll(".opt").forEach((el) => {
   const handler = (e) => {
-    // iPad Safari: make sure tap triggers selection reliably
+    // Deduplicate: avoid touchend + click double fire on iOS
+    const now = Date.now();
+    if (now - __lastTapAt < 250) return;
+    __lastTapAt = now;
+
     e.preventDefault();
     e.stopPropagation();
     toggleOption(el);
   };
 
-  // Works best across iPad / desktop / Android
-  el.addEventListener("pointerup", handler, { passive: false });
-
-  // Fallback for older iOS
+  // iOS Safari reliable path
   el.addEventListener("touchend", handler, { passive: false });
-
   // Desktop fallback
   el.addEventListener("click", handler, { passive: false });
 });
+
 
 
     cityInput.addEventListener("input", () => { state.city = cityInput.value.trim(); });
@@ -1385,13 +1370,8 @@ reasonLines.innerHTML = `
       }
     });
 
-    // ---------------- init ----------------
-    function showToast(msg){
-      toastMsg.textContent = msg;
-      toast.style.display = "block";
-      toastBtn.onclick = () => (toast.style.display = "none");
-      setTimeout(() => { toast.style.display = "none"; }, 1800);
-    }
+    
+    
 
     bindNav();
     showCard(0);
@@ -1400,6 +1380,7 @@ reasonLines.innerHTML = `
   </script>
 </body>
 </html>
+
 
 
 
