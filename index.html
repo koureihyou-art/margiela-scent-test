@@ -136,7 +136,11 @@
     .opt.on{border-color:#111;background:#111;color:#fff;box-shadow:var(--shadow2);}
     .opt.on .mini{color:rgba(255,255,255,.75);}
     .opt.on .mark{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.12);color:#fff;}
-
+    .opt {
+  -webkit-tap-highlight-color: transparent; /* 去掉 iPad 点击时的蓝色高亮 */
+  touch-action: manipulation;               /* 解决双击缩放导致的点击延迟 */
+  cursor: pointer;
+}
     .input{
       width:100%;
       padding:12px 12px;
@@ -1268,25 +1272,70 @@ reasonLines.innerHTML = `
 
     let __lastTapAt = 0;
 
-const handleOptClick = (e) => {
-  // 阻止双击缩放导致的延迟或干扰
-  e.preventDefault();
-  
-  // 这里的 target 要确保指向 .opt 容器
-  const el = e.currentTarget;
-  toggleOption(el);
-};
+// ---------------- 修复后的 iPad 点击逻辑 ----------------
 
+// 1. 处理选项点击
+function handleOptInteraction(el) {
+  const q = el.dataset.q;
+  const type = el.dataset.type;
+  const val = el.dataset.val;
+
+  if (type === "single") {
+    state[q] = val;
+    document.querySelectorAll(`.opt[data-q="${q}"]`).forEach(x => x.classList.remove("on"));
+    el.classList.add("on");
+  } else {
+    const max = parseInt(el.dataset.max || "99", 10);
+    const arr = state[q] || [];
+    const idx = arr.indexOf(val);
+    if (idx >= 0) {
+      arr.splice(idx, 1);
+      el.classList.remove("on");
+    } else {
+      if (arr.length >= max) {
+        showToast(`Max ${max} selections.`);
+        return;
+      }
+      arr.push(val);
+      el.classList.add("on");
+    }
+    state[q] = arr;
+  }
+
+  if (q === "family") updateConditional();
+  validateCard(step);
+
+  // 自动跳转逻辑
+  if (type === "single") {
+    const nextBtn = document.getElementById(`next${step}`);
+    if (nextBtn && !nextBtn.disabled) {
+      setTimeout(() => nextBtn.click(), 200);
+    }
+  }
+}
+
+// 2. 绑定事件 (针对 iPad 优化)
 document.querySelectorAll(".opt").forEach((el) => {
-  // 使用 pointerdown 是目前解决 iPad/移动端响应最快且最稳定的方式
-  // 如果你的 iPad 系统版本较低，也可以换回 'click'
-  el.addEventListener("click", (e) => {
-    toggleOption(el);
-  });
-  
-  // 针对 iPad 的特殊处理：移除之前复杂的 touchend 逻辑，改用简单的 CSS 优化
+  // 禁用浏览器默认的触摸反馈，改用我们的逻辑
   el.style.touchAction = "manipulation"; 
+
+  // 使用 click 即可，现代 iOS Safari 对 click 的延迟已经优化
+  el.addEventListener("click", function(e) {
+    e.preventDefault();
+    handleOptInteraction(this);
+  });
 });
+
+// 3. 修正城市输入框监听
+if(cityInput) {
+  cityInput.addEventListener("input", () => { state.city = cityInput.value.trim(); });
+}
+
+// ---------------- 初始化执行 ----------------
+bindNav();
+showCard(0);
+updateConditional();
+validateCard(0);
 
   // iOS Safari reliable path
   el.addEventListener("touchend", handler, { passive: false });
@@ -1398,6 +1447,7 @@ document.querySelectorAll(".opt").forEach((el) => {
   </script>
 </body>
 </html>
+
 
 
 
