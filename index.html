@@ -1257,23 +1257,37 @@ reasonLines.innerHTML = `
 
     let __lastTapAt = 0;
 
-document.querySelectorAll(".opt").forEach((el) => {
-  const handler = (e) => {
-    // Deduplicate: avoid touchend + click double fire on iOS
-    const now = Date.now();
-    if (now - __lastTapAt < 250) return;
-    __lastTapAt = now;
+const handleOptClick = (e) => {
+  // 阻止双击缩放导致的延迟或干扰
+  e.preventDefault();
+  
+  // 这里的 target 要确保指向 .opt 容器
+  const el = e.currentTarget;
+  toggleOption(el);
+};
 
-    e.preventDefault();
-    e.stopPropagation();
+document.querySelectorAll(".opt").forEach((el) => {
+  // 使用 pointerdown 是目前解决 iPad/移动端响应最快且最稳定的方式
+  // 如果你的 iPad 系统版本较低，也可以换回 'click'
+  el.addEventListener("click", (e) => {
     toggleOption(el);
-  };
+  });
+  
+  // 针对 iPad 的特殊处理：移除之前复杂的 touchend 逻辑，改用简单的 CSS 优化
+  el.style.touchAction = "manipulation"; 
+});
 
   // iOS Safari reliable path
   el.addEventListener("touchend", handler, { passive: false });
   // Desktop fallback
   el.addEventListener("click", handler, { passive: false });
 });
+    /* 在 .opt 的样式里加上这个 */
+.opt {
+  -webkit-tap-highlight-color: transparent; /* 去掉点击时的蓝色高亮框 */
+  touch-action: manipulation;               /* 禁用双击缩放，提升响应速度 */
+  cursor: pointer;
+};
 
 
 
@@ -1373,6 +1387,7 @@ document.querySelectorAll(".opt").forEach((el) => {
   </script>
 </body>
 </html>
+
 
 
 
