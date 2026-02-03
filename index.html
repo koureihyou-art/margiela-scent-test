@@ -1,4 +1,3 @@
-
 <!doctype html>
 <html lang="en">
 <head>
@@ -63,7 +62,6 @@
     .bar{height:8px;border-radius:999px;background:#e9e9e9;overflow:hidden;}
     .bar>i{display:block;height:100%;width:0%;background:#111;border-radius:999px;transition:width .35s ease;}
 
-    /* Single card stage */
     .stage{
       position:relative;
       min-height: 520px;
@@ -124,6 +122,10 @@
       align-items:center;
       justify-content:space-between;
       gap:10px;
+
+      /* ✅ iPad Safari: make tap reliable */
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
     .opt:active{transform:scale(.99);}
     .opt:hover{box-shadow:0 10px 22px rgba(0,0,0,.06);}
@@ -171,7 +173,6 @@
     .warn{color:var(--danger);font-weight:750;}
     .ok{color:var(--ok);font-weight:750;}
 
-    /* Results */
     .personaBox{
       padding:14px;border-radius:14px;border:1px solid var(--line);background:#fafafa;margin:12px 0 6px;
     }
@@ -197,18 +198,12 @@
     .scentBody{padding:14px;display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:center;}
     .imgWrap{width:110px;height:140px;border:1px solid var(--line);border-radius:14px;background:#fbfbfb;display:grid;place-items:center;overflow:hidden;position:relative;}
     .imgWrap img{width:100%;height:100%;object-fit:cover;display:block;}
-    .imgHint{
-      position:absolute;bottom:8px;left:8px;right:8px;font-size:11px;color:rgba(17,17,17,.65);
-      background:rgba(255,255,255,.75);border:1px solid var(--line);border-radius:999px;padding:5px 8px;text-align:center;
-      backdrop-filter: blur(6px);-webkit-backdrop-filter: blur(6px);
-    }
     .sdesc{margin:0;font-size:13px;color:var(--muted);line-height:1.4;}
     .tags{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;}
     .tag{background:#f3f3f3;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:12px;color:#111;}
     .ctaRow{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;}
     .miniBtn{border:1px solid var(--line);background:#fff;color:#111;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:750;cursor:pointer;}
 
-    /* Toast */
     .toast{position:fixed;left:18px;right:18px;bottom:18px;max-width:980px;margin:0 auto;display:none;z-index:50;}
     .toast .tbox{
       background:#111;color:#fff;padding:12px 14px;border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.22);
@@ -361,7 +356,7 @@
         </div>
       </section>
 
-      <!-- Card 6 (Conditional) -->
+      <!-- Card 6 -->
       <section class="card" data-step="5">
         <div class="hero">
           <p class="title">Preference Detail</p>
@@ -465,10 +460,9 @@
           </div>
 
           <div class="personaBox" id="reasonBox" style="margin-top:12px">
-           <p class="p1">WHY THESE PICKS</p>
-           <div id="reasonLines" style="margin-top:6px"></div>
+            <p class="p1">WHY THESE PICKS</p>
+            <div id="reasonLines" style="margin-top:6px"></div>
           </div>
-
 
           <div class="gallery" id="gallery"></div>
 
@@ -497,32 +491,28 @@
   <script>
     // ---------------- State ----------------
     const state = {
-  level: null,
-  scene: [],
-  city: "",
-  vibe: [],
-  family: [],
-  sweetness: null,
-  smoky: null,
-  intensity: null,
-  impression: [],
+      level: null,
+      scene: [],
+      city: "",
+      vibe: [],
+      family: [],
+      sweetness: null,
+      smoky: null,
+      intensity: null,
+      impression: [],
+      wx: { temp: null, rh: null, climate: null, label: null },
+      wxCache: {}
+    };
 
-  // NEW: weather snapshot for explanations
-  wx: { temp: null, rh: null, climate: null, label: null },
-
-  // NEW: cache to avoid repeated calls
-  wxCache: {}
-};
-
-
+    const stage = document.getElementById("stage");
     const cards = Array.from(document.querySelectorAll(".card"));
-    const total = 8; // questions count (results not counted)
+    const total = 8;
     let step = 0;
 
     const stepText = document.getElementById("stepText");
     const barFill  = document.getElementById("barFill");
 
-    const cityInput = document.getElementById("cityInput");
+    const cityInput  = document.getElementById("cityInput");
     const sweetBlock = document.getElementById("sweetBlock");
     const smokyBlock = document.getElementById("smokyBlock");
 
@@ -551,24 +541,10 @@
       return state.family.some(x => ["woody","green"].includes(x));
     }
 
-    function updateConditional(){
-      const sweet = shouldAskSweetness();
-      const smoky = shouldAskSmoky();
-      sweetBlock.style.display = sweet ? "block" : "none";
-      smokyBlock.style.display = smoky ? "block" : "none";
-      if (!sweet) state.sweetness = null;
-      if (!smoky) state.smoky = null;
-
-      document.querySelectorAll('[data-q="sweetness"]').forEach(el => el.classList.toggle("on", el.dataset.val === state.sweetness));
-      document.querySelectorAll('[data-q="smoky"]').forEach(el => el.classList.toggle("on", el.dataset.val === state.smoky));
-      validateCard(5);
-    }
-
-    function setProgress(questionIndex){
-      // questionIndex is 0..7; results card is 8
-      if (questionIndex <= 7){
-        stepText.textContent = `${questionIndex + 1} / ${total}`;
-        barFill.style.width = `${(questionIndex / (total - 1)) * 100}%`;
+    function setProgress(idx){
+      if (idx <= 7){
+        stepText.textContent = `${idx + 1} / ${total}`;
+        barFill.style.width = `${(idx / (total - 1)) * 100}%`;
       } else {
         stepText.textContent = `${total} / ${total}`;
         barFill.style.width = `100%`;
@@ -577,26 +553,25 @@
 
     function showCard(idx){
       cards.forEach(c => c.classList.remove("active","exitLeft"));
-      const current = cards[idx];
-      current.classList.add("active");
+      const target = cards[idx];
+      if (!target) return;
+      target.classList.add("active");
       step = idx;
+
       setProgress(Math.min(idx, 7));
+      validateCard(Math.min(idx, 7));
+
       window.scrollTo({top:0, behavior:"smooth"});
       if (idx === 2) setTimeout(() => cityInput.focus(), 120);
     }
 
     function goNext(){
       const cur = step;
-      // animate exit
       cards[cur].classList.add("exitLeft");
-      setTimeout(() => {
-        showCard(cur + 1);
-      }, 180);
+      setTimeout(() => showCard(cur + 1), 180);
     }
-
     function goBack(){
-      const cur = step;
-      showCard(Math.max(0, cur - 1));
+      showCard(Math.max(0, step - 1));
     }
 
     // ---------------- Validation per card ----------------
@@ -604,31 +579,18 @@
       const n = document.getElementById(`note${cardIdx}`);
       const next = document.getElementById(`next${cardIdx}`);
       if (!n || !next) return;
-      n.innerHTML = ok ? `<span class="ok">${text || "Ready."}</span>` : `<span class="warn">${text}</span>`;
+      n.innerHTML = ok
+        ? `<span class="ok">${text || "Ready."}</span>`
+        : `<span class="warn">${text}</span>`;
       next.disabled = !ok;
     }
 
     function validateCard(cardIdx){
-      // cardIdx corresponds to question steps 0..7
-      if (cardIdx === 0){
-        const ok = !!state.level;
-        setNote(0, ok, ok ? "Ready." : "Please select one option.");
-      }
-      if (cardIdx === 1){
-        const ok = state.scene.length > 0;
-        setNote(1, ok, ok ? "Ready." : "Select at least one context.");
-      }
-      if (cardIdx === 2){
-        setNote(2, true, "You can continue.");
-      }
-      if (cardIdx === 3){
-        const ok = state.vibe.length > 0;
-        setNote(3, ok, ok ? "Ready." : "Select 1–2 atmospheres.");
-      }
-      if (cardIdx === 4){
-        const ok = state.family.length > 0;
-        setNote(4, ok, ok ? "Ready." : "Select 1–2 families.");
-      }
+      if (cardIdx === 0) setNote(0, !!state.level, state.level ? "Ready." : "Please select one option.");
+      if (cardIdx === 1) setNote(1, state.scene.length > 0, state.scene.length ? "Ready." : "Select at least one context.");
+      if (cardIdx === 2) setNote(2, true, "You can continue.");
+      if (cardIdx === 3) setNote(3, state.vibe.length > 0, state.vibe.length ? "Ready." : "Select 1–2 atmospheres.");
+      if (cardIdx === 4) setNote(4, state.family.length > 0, state.family.length ? "Ready." : "Select 1–2 families.");
       if (cardIdx === 5){
         const needSweet = shouldAskSweetness();
         const needSmoky = shouldAskSmoky();
@@ -638,14 +600,24 @@
         if (needSmoky && !state.smoky){ ok = false; msg = "Select your smoky tolerance."; }
         setNote(5, ok, msg);
       }
-      if (cardIdx === 6){
-        const ok = !!state.intensity;
-        setNote(6, ok, ok ? "Ready." : "Please select one option.");
-      }
-      if (cardIdx === 7){
-        const ok = state.impression.length > 0;
-        setNote(7, ok, ok ? "Ready." : "Select up to 2 impressions.");
-      }
+      if (cardIdx === 6) setNote(6, !!state.intensity, state.intensity ? "Ready." : "Please select one option.");
+      if (cardIdx === 7) setNote(7, state.impression.length > 0, state.impression.length ? "Ready." : "Select up to 2 impressions.");
+    }
+
+    function updateConditional(){
+      const sweet = shouldAskSweetness();
+      const smoky = shouldAskSmoky();
+
+      sweetBlock.style.display = sweet ? "block" : "none";
+      smokyBlock.style.display = smoky ? "block" : "none";
+
+      if (!sweet) state.sweetness = null;
+      if (!smoky) state.smoky = null;
+
+      document.querySelectorAll('[data-q="sweetness"]').forEach(el => el.classList.toggle("on", el.dataset.val === state.sweetness));
+      document.querySelectorAll('[data-q="smoky"]').forEach(el => el.classList.toggle("on", el.dataset.val === state.smoky));
+
+      validateCard(5);
     }
 
     // ---------------- Option toggles ----------------
@@ -677,270 +649,258 @@
         state[q] = arr;
       }
 
-      // conditional refresh
       if (q === "family") updateConditional();
-
-      // validate current card
       validateCard(step);
 
-      // Auto-advance: single-choice cards advance immediately (after a tiny delay)
-      const autoAdvanceSingles = new Set([0, 6]); // level, intensity
+      // Auto-advance: keep it conservative (only Q1 & Q7 like your original intent)
+      const autoAdvanceSingles = new Set([0, 6]);
       if (type === "single" && autoAdvanceSingles.has(step)){
         const nextBtn = document.getElementById(`next${step}`);
         if (nextBtn && !nextBtn.disabled){
-          setTimeout(() => nextBtn.click(), 180);
+          setTimeout(() => nextBtn.click(), 160);
         }
       }
     }
 
-   
+    // ✅ iPad-stable: event delegation (no per-option touchend/click preventDefault)
+    function bindOptionDelegation(){
+      let lastFire = 0;
+
+      const fire = (e) => {
+        const opt = e.target.closest(".opt");
+        if (!opt || !stage.contains(opt)) return;
+
+        const now = Date.now();
+        if (now - lastFire < 180) return; // dedupe pointerup + click
+        lastFire = now;
+
+        toggleOption(opt);
+      };
+
+      // Pointer events first (iPadOS Safari supports it)
+      stage.addEventListener("pointerup", fire, { passive: true });
+      // Fallback
+      stage.addEventListener("click", fire, { passive: true });
+    }
+
     // city input
     cityInput.addEventListener("input", () => { state.city = cityInput.value.trim(); });
 
- 
+    // ---------------- Weather → Climate (no API key) ----------------
+    async function hydrateWeatherFromCity(){
+      const city = (state.city || "").trim();
+      if (!city) {
+        state.wx = { temp:null, rh:null, climate:null, label:null };
+        return;
+      }
+      if (state.wxCache[city]) {
+        state.wx = state.wxCache[city];
+        return;
+      }
 
-   // ---------------- Weather → Climate (no API key) ----------------
-async function hydrateWeatherFromCity(){
-  const city = (state.city || "").trim();
-  if (!city) {
-    state.wx = { temp:null, rh:null, climate:null, label:null };
-    return;
-  }
+      try{
+        const gUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&format=json`;
+        const g = await fetch(gUrl).then(r=>r.json());
+        const hit = g?.results?.[0];
+        if (!hit) {
+          state.wx = { temp:null, rh:null, climate:null, label:null };
+          return;
+        }
 
-  // cache hit
-  if (state.wxCache[city]) {
-    state.wx = state.wxCache[city];
-    return;
-  }
+        const wUrl = `https://api.open-meteo.com/v1/forecast?latitude=${hit.latitude}&longitude=${hit.longitude}&current=temperature_2m,relative_humidity_2m`;
+        const w = await fetch(wUrl).then(r=>r.json());
+        const temp = w?.current?.temperature_2m;
+        const rh   = w?.current?.relative_humidity_2m;
 
-  try{
-    // 1) City -> lat/lon
-    const gUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&format=json`;
-    const g = await fetch(gUrl).then(r=>r.json());
-    const hit = g?.results?.[0];
-    if (!hit) {
-      state.wx = { temp:null, rh:null, climate:null, label:null };
-      return;
+        const { climate, label } = classifyClimate(temp, rh);
+        const wx = { temp, rh, climate, label };
+
+        state.wx = wx;
+        state.wxCache[city] = wx;
+      }catch(e){
+        state.wx = { temp:null, rh:null, climate:null, label:null };
+      }
     }
 
-    // 2) Lat/lon -> current temp + humidity
-    const wUrl = `https://api.open-meteo.com/v1/forecast?latitude=${hit.latitude}&longitude=${hit.longitude}&current=temperature_2m,relative_humidity_2m`;
-    const w = await fetch(wUrl).then(r=>r.json());
-    const temp = w?.current?.temperature_2m;
-    const rh   = w?.current?.relative_humidity_2m;
+    function classifyClimate(temp, rh){
+      if (temp == null || rh == null) return { climate:null, label:null };
+      const warm  = temp >= 22;
+      const humid = rh >= 65;
 
-    const { climate, label } = classifyClimate(temp, rh);
-    const wx = { temp, rh, climate, label };
+      if (warm && humid)  return { climate:"warm_humid", label:"warm & humid" };
+      if (warm && !humid) return { climate:"warm_dry",   label:"warm & dry" };
+      if (!warm && humid) return { climate:"cool_humid", label:"cool & humid" };
+      return { climate:"cool_dry", label:"cool & dry" };
+    }
 
-    state.wx = wx;
-    state.wxCache[city] = wx; // cache
-  }catch(e){
-    state.wx = { temp:null, rh:null, climate:null, label:null };
-  }
-}
+    function climateReason(){
+      const wx = state.wx || {};
+      if (!wx.label || wx.temp == null || wx.rh == null) {
+        return "Based on your location, we kept the match balanced for comfort.";
+      }
+      const t = Math.round(wx.temp);
+      const h = Math.round(wx.rh);
 
-// Simple 4-bucket classifier
-function classifyClimate(temp, rh){
-  if (temp == null || rh == null) return { climate:null, label:null };
+      if (wx.climate === "warm_humid") return `In ${wx.label} weather (${t}°C, ${h}% RH), lighter and fresher scents feel cleaner on skin.`;
+      if (wx.climate === "warm_dry")   return `In ${wx.label} weather (${t}°C, ${h}% RH), crisp fresh notes stay comfortable and not heavy.`;
+      if (wx.climate === "cool_humid") return `In ${wx.label} weather (${t}°C, ${h}% RH), clean musks and soft woods feel refined and cozy.`;
+      return `In ${wx.label} weather (${t}°C, ${h}% RH), warmer notes develop more depth and often last longer.`;
+    }
 
-  const warm  = temp >= 22;   // threshold: warm
-  const humid = rh >= 65;     // threshold: humid
-
-  if (warm && humid)  return { climate:"warm_humid", label:"warm & humid" };
-  if (warm && !humid) return { climate:"warm_dry",   label:"warm & dry" };
-  if (!warm && humid) return { climate:"cool_humid", label:"cool & humid" };
-  return { climate:"cool_dry", label:"cool & dry" };
-}
-
-// ---------------- 3-sentence explanation ----------------
-function climateReason(){
-  const wx = state.wx || {};
-  if (!wx.label || wx.temp == null || wx.rh == null) {
-    return "Based on your location, we kept the match balanced for comfort.";
-  }
-  const t = Math.round(wx.temp);
-  const h = Math.round(wx.rh);
-
-  if (wx.climate === "warm_humid") return `In ${wx.label} weather (${t}°C, ${h}% RH), lighter and fresher scents feel cleaner on skin.`;
-  if (wx.climate === "warm_dry")   return `In ${wx.label} weather (${t}°C, ${h}% RH), crisp fresh notes stay comfortable and not heavy.`;
-  if (wx.climate === "cool_humid") return `In ${wx.label} weather (${t}°C, ${h}% RH), clean musks and soft woods feel refined and cozy.`;
-  return `In ${wx.label} weather (${t}°C, ${h}% RH), warmer notes develop more depth and often last longer.`;
-}
-
-function sceneReason(scene){
-  const s = new Set(scene || []);
-  if (s.has("work")) return "You wear fragrance for work, so a controlled and polished presence matters most.";
-  if (s.has("date") || s.has("event")) return "You wear fragrance for dates/events, so character and memorability matter more.";
-  if (s.has("sport")) return "You wear fragrance in active moments, so freshness and breathability are key.";
-  if (s.has("travel")) return "You wear fragrance while traveling, so versatility and a clean impression help most.";
-  return "You mainly wear fragrance in daily life, so an easy, versatile profile fits best.";
-}
-
-function scentReason(p){
-  // Use your existing vec to explain in 1 line
-  if (p.vec.clean >= 3) return "This scent leans clean and skin-like, staying effortless and close throughout the day.";
-  if (p.vec.fresh >= 3) return "This scent emphasizes airy freshness, keeping it light and breathable on skin.";
-  if (p.vec.amber >= 3) return "This scent adds warm amber comfort, creating a more intimate and cozy trail.";
-  if (p.vec.woody >= 3) return "This scent is built around structured woods, adding depth without feeling messy.";
-  if (p.vec.green >= 3) return "This scent highlights green herbal facets, giving a natural and uplifting feeling.";
-  return "This scent stays balanced across notes, matching multiple parts of your profile.";
-}
-
-function buildReason3(p){
-  return [ climateReason(), sceneReason(state.scene), scentReason(p) ];
-}
+    function sceneReason(scene){
+      const s = new Set(scene || []);
+      if (s.has("work")) return "You wear fragrance for work, so a controlled and polished presence matters most.";
+      if (s.has("date") || s.has("event")) return "You wear fragrance for dates/events, so character and memorability matter more.";
+      if (s.has("sport")) return "You wear fragrance in active moments, so freshness and breathability are key.";
+      if (s.has("travel")) return "You wear fragrance while traveling, so versatility and a clean impression help most.";
+      return "You mainly wear fragrance in daily life, so an easy, versatile profile fits best.";
+    }
 
     // ---------------- Matching ----------------
     const scents = [
-    // ===== 你原来的 8 个（保留原图） =====
-    {
-      key:"lazy_sunday_morning",
-      name:"Lazy Sunday Morning",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-lazy-sunday-morning-S33YX0018S10932001.html",
-      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwd5bce2b7/images/large/S33YX0018_S10932_001_F.jpg",
-      tags:["Clean","Musky","Soft Floral"],
-      desc:"Clean linen, soft musk, gentle florals — effortless and intimate.",
-      vec:{ fresh:3, floral:2, amber:0, woody:0, green:1, clean:3, sweet:0, smoky:0, bold:0 }
-    },
-    {
-      key:"bubble_bath",
-      name:"Bubble Bath",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-bubble-bath-S33YX0087S11972961.html",
-      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw5e3bda35/images/large/S33YX0087_S11972_961_F.jpg",
-      tags:["Soapy","Coconut","Clean"],
-      desc:"Soapy cleanliness with a cozy skin-like comfort.",
-      vec:{ fresh:3, floral:1, amber:0, woody:0, green:1, clean:3, sweet:1, smoky:0, bold:0 }
-    },
-    {
-      key:"sailing_day",
-      name:"Sailing Day",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-sailing-day-S33YX0056S11604961.html",
-      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwb34637e5/images/large/S33YX0056_S11604_961_F.jpg",
-      tags:["Marine","Fresh","Aromatic"],
-      desc:"Oceanic freshness and airy aromatics — crisp and uplifting.",
-      vec:{ fresh:4, floral:0, amber:0, woody:0, green:2, clean:2, sweet:0, smoky:0, bold:0 }
-    },
-    {
-      key:"springtime_in_a_park",
-      name:"Springtime in a Park",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-springtime-in-a-park-S33YX0078S11919961.html",
-      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw90491b11/images/large/S33YX0078_S11919_961_F.jpg",
-      tags:["Floral","Green","Bright"],
-      desc:"A bright floral bouquet with a fresh spring breeze.",
-      vec:{ fresh:2, floral:4, amber:0, woody:0, green:2, clean:1, sweet:1, smoky:0, bold:0 }
-    },
-    {
-      key:"coffee_break",
-      name:"Coffee Break",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-coffee-break-S33YX0075S11917961.html",
-      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw1c6c7669/images/large/S33YX0075_S11917_961_F.jpg",
-      tags:["Coffee","Creamy","Warm"],
-      desc:"Coffee-laced comfort with a creamy sweetness.",
-      vec:{ fresh:0, floral:1, amber:4, woody:1, green:0, clean:0, sweet:3, smoky:0, bold:1 }
-    },
-    {
-      key:"jazz_club",
-      name:"Jazz Club",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-jazz-club-S33YX0016S10930001.html",
-      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw4b01e89f/images/large/S33YX0016_S10930_001_F.jpg",
-      tags:["Rum","Tobacco","Amber"],
-      desc:"Warm rum, tobacco and amber — charismatic and nocturnal.",
-      vec:{ fresh:0, floral:0, amber:4, woody:2, green:0, clean:0, sweet:2, smoky:1, bold:2 }
-    },
-    {
-      key:"by_the_fireplace",
-      name:"By the Fireplace",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-by-the-fireplace-S33YX0024S11331961.html",
-      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwd0b597c5/images/large/S33YX0024_S11331_961_F.jpg",
-      tags:["Smoky","Woods","Vanilla"],
-      desc:"Smoky woods and toasted warmth — iconic winter comfort.",
-      vec:{ fresh:0, floral:0, amber:3, woody:4, green:0, clean:0, sweet:2, smoky:3, bold:2 }
-    },
-    {
-      key:"whispers_in_the_library",
-      name:"Whispers in the Library",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-whispers-in-the-library-S33YX0059S11721961.html",
-      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwdad957dd/images/large/S33YX0059_S11721_961_F.jpg",
-      tags:["Paper","Woods","Soft Spice"],
-      desc:"Paper, woods and soft spice — quiet, intellectual, refined.",
-      vec:{ fresh:1, floral:0, amber:1, woody:4, green:0, clean:1, sweet:0, smoky:0, bold:1 }
-    },
-
-    // ===== 新增：官网“香水”产品（先不强行填 img，避免错图；下一步你给我图链接我再补全） =====
-    {
-      key:"beach_walk",
-      name:"Beach Walk",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-beach-walk-S33YX0014S10931001.html",
-      img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dw60cd013c/images/large/S33YX0014_S10931_001_F.jpg",
-      tags:["Sunny","Salty","Coconut"],
-      desc:"A sun-warmed beach memory — salty air and creamy comfort.",
-      vec:{ fresh:2, floral:1, amber:1, woody:0, green:0, clean:1, sweet:1, smoky:0, bold:0 }
-    },
-    {
-      key:"under_the_stars",
-      name:"Under the Stars",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-under-the-stars-S33YX0124S12594961.html",
-      img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dw9e81b623/images/large/S33YX0171_M10016_961_F.jpg",
-      tags:["Warm","Spicy","Resinous"],
-      desc:"A night-sky vibe — warm spice and deep, resinous woods.",
-      vec:{ fresh:0, floral:0, amber:3, woody:3, green:0, clean:0, sweet:1, smoky:2, bold:2 }
-    },
-    {
-      key:"on_a_date",
-      name:"On a Date",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-on-a-date-S33YX0126SV0060961.html",
-      img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dw1ad599ec/images/large/S33YX0140_SV0154_961_F.jpg",
-      tags:["Fruity","Rose","Sunset"],
-      desc:"Late-summer Provence — ripe fruit brightness with a rose edge.",
-      vec:{ fresh:1, floral:3, amber:1, woody:0, green:1, clean:1, sweet:1, smoky:0, bold:1 }
-    },
-    {
-      key:"matcha_meditation",
-      name:"Matcha Meditation",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-matcha-meditation-S33YX0125SV0046961.html",
-      img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dwe47bfac9/images/large/S33YX0125_SV0046_961_F.jpg",
-      tags:["Tea","Creamy","Soft Green"],
-      desc:"A creamy matcha moment — gentle green comfort and calm.",
-      vec:{ fresh:1, floral:1, amber:1, woody:0, green:3, clean:1, sweet:1, smoky:0, bold:0 }
-    },
-    {
-      key:"from_the_garden",
-      name:"From the Garden",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-from-the-garden-S33YX0177M10053961.html",
-      img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dw0ea459a7/images/large/S33YX0177_M10053_961_F.jpg",
-      tags:["Green","Tomato Leaf","Fresh"],
-      desc:"A vivid garden memory — green leaves and crisp freshness.",
-      vec:{ fresh:2, floral:0, amber:0, woody:0, green:4, clean:2, sweet:0, smoky:0, bold:0 }
-    },
-    {
-      key:"soul_of_the_forest",
-      name:"Soul of the Forest",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-soul-of-the-forest-S33YX0131SV0086961.html",
-      img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dw1c54a6c1/images/large/S33YX0032_S11389_961_F.jpg",
-      tags:["Forest","Woody","Earthy"],
-      desc:"Deep forest air — earthy woods and natural depth.",
-      vec:{ fresh:0, floral:0, amber:1, woody:4, green:2, clean:0, sweet:0, smoky:1, bold:1 }
-    },
-    {
-      key:"untitled_edp",
-      name:"(untitled) Eau de Parfum",
-      url:"https://www.maisonmargiela.com/fr-fr/eau-de-parfum-%28untitled%29-S33YX0134SV0090961.html",
-      img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dwe523aa1f/images/large/S33YX0134_SV0090_961_F.jpg",
-      tags:["Minimal","Clean","Modern"],
-      desc:"A minimalist signature — clean modernity with subtle character.",
-      vec:{ fresh:2, floral:1, amber:0, woody:1, green:1, clean:3, sweet:0, smoky:0, bold:0 }
-    }
-  ];
-
+      {
+        key:"lazy_sunday_morning",
+        name:"Lazy Sunday Morning",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-lazy-sunday-morning-S33YX0018S10932001.html",
+        img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwd5bce2b7/images/large/S33YX0018_S10932_001_F.jpg",
+        tags:["Clean","Musky","Soft Floral"],
+        desc:"Clean linen, soft musk, gentle florals — effortless and intimate.",
+        vec:{ fresh:3, floral:2, amber:0, woody:0, green:1, clean:3, sweet:0, smoky:0, bold:0 }
+      },
+      {
+        key:"bubble_bath",
+        name:"Bubble Bath",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-bubble-bath-S33YX0087S11972961.html",
+        img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw5e3bda35/images/large/S33YX0087_S11972_961_F.jpg",
+        tags:["Soapy","Coconut","Clean"],
+        desc:"Soapy cleanliness with a cozy skin-like comfort.",
+        vec:{ fresh:3, floral:1, amber:0, woody:0, green:1, clean:3, sweet:1, smoky:0, bold:0 }
+      },
+      {
+        key:"sailing_day",
+        name:"Sailing Day",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-sailing-day-S33YX0056S11604961.html",
+        img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwb34637e5/images/large/S33YX0056_S11604_961_F.jpg",
+        tags:["Marine","Fresh","Aromatic"],
+        desc:"Oceanic freshness and airy aromatics — crisp and uplifting.",
+        vec:{ fresh:4, floral:0, amber:0, woody:0, green:2, clean:2, sweet:0, smoky:0, bold:0 }
+      },
+      {
+        key:"springtime_in_a_park",
+        name:"Springtime in a Park",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-springtime-in-a-park-S33YX0078S11919961.html",
+        img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw90491b11/images/large/S33YX0078_S11919_961_F.jpg",
+        tags:["Floral","Green","Bright"],
+        desc:"A bright floral bouquet with a fresh spring breeze.",
+        vec:{ fresh:2, floral:4, amber:0, woody:0, green:2, clean:1, sweet:1, smoky:0, bold:0 }
+      },
+      {
+        key:"coffee_break",
+        name:"Coffee Break",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-coffee-break-S33YX0075S11917961.html",
+        img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw1c6c7669/images/large/S33YX0075_S11917_961_F.jpg",
+        tags:["Coffee","Creamy","Warm"],
+        desc:"Coffee-laced comfort with a creamy sweetness.",
+        vec:{ fresh:0, floral:1, amber:4, woody:1, green:0, clean:0, sweet:3, smoky:0, bold:1 }
+      },
+      {
+        key:"jazz_club",
+        name:"Jazz Club",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-jazz-club-S33YX0016S10930001.html",
+        img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw4b01e89f/images/large/S33YX0016_S10930_001_F.jpg",
+        tags:["Rum","Tobacco","Amber"],
+        desc:"Warm rum, tobacco and amber — charismatic and nocturnal.",
+        vec:{ fresh:0, floral:0, amber:4, woody:2, green:0, clean:0, sweet:2, smoky:1, bold:2 }
+      },
+      {
+        key:"by_the_fireplace",
+        name:"By the Fireplace",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-by-the-fireplace-S33YX0024S11331961.html",
+        img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwd0b597c5/images/large/S33YX0024_S11331_961_F.jpg",
+        tags:["Smoky","Woods","Vanilla"],
+        desc:"Smoky woods and toasted warmth — iconic winter comfort.",
+        vec:{ fresh:0, floral:0, amber:3, woody:4, green:0, clean:0, sweet:2, smoky:3, bold:2 }
+      },
+      {
+        key:"whispers_in_the_library",
+        name:"Whispers in the Library",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-whispers-in-the-library-S33YX0059S11721961.html",
+        img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwdad957dd/images/large/S33YX0059_S11721_961_F.jpg",
+        tags:["Paper","Woods","Soft Spice"],
+        desc:"Paper, woods and soft spice — quiet, intellectual, refined.",
+        vec:{ fresh:1, floral:0, amber:1, woody:4, green:0, clean:1, sweet:0, smoky:0, bold:1 }
+      },
+      {
+        key:"beach_walk",
+        name:"Beach Walk",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-beach-walk-S33YX0014S10931001.html",
+        img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dw60cd013c/images/large/S33YX0014_S10931_001_F.jpg",
+        tags:["Sunny","Salty","Coconut"],
+        desc:"A sun-warmed beach memory — salty air and creamy comfort.",
+        vec:{ fresh:2, floral:1, amber:1, woody:0, green:0, clean:1, sweet:1, smoky:0, bold:0 }
+      },
+      {
+        key:"under_the_stars",
+        name:"Under the Stars",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-under-the-stars-S33YX0124S12594961.html",
+        img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dw9e81b623/images/large/S33YX0171_M10016_961_F.jpg",
+        tags:["Warm","Spicy","Resinous"],
+        desc:"A night-sky vibe — warm spice and deep, resinous woods.",
+        vec:{ fresh:0, floral:0, amber:3, woody:3, green:0, clean:0, sweet:1, smoky:2, bold:2 }
+      },
+      {
+        key:"on_a_date",
+        name:"On a Date",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-on-a-date-S33YX0126SV0060961.html",
+        img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dw1ad599ec/images/large/S33YX0140_SV0154_961_F.jpg",
+        tags:["Fruity","Rose","Sunset"],
+        desc:"Late-summer Provence — ripe fruit brightness with a rose edge.",
+        vec:{ fresh:1, floral:3, amber:1, woody:0, green:1, clean:1, sweet:1, smoky:0, bold:1 }
+      },
+      {
+        key:"matcha_meditation",
+        name:"Matcha Meditation",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-matcha-meditation-S33YX0125SV0046961.html",
+        img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dwe47bfac9/images/large/S33YX0125_SV0046_961_F.jpg",
+        tags:["Tea","Creamy","Soft Green"],
+        desc:"A creamy matcha moment — gentle green comfort and calm.",
+        vec:{ fresh:1, floral:1, amber:1, woody:0, green:3, clean:1, sweet:1, smoky:0, bold:0 }
+      },
+      {
+        key:"from_the_garden",
+        name:"From the Garden",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-from-the-garden-S33YX0177M10053961.html",
+        img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dw0ea459a7/images/large/S33YX0177_M10053_961_F.jpg",
+        tags:["Green","Tomato Leaf","Fresh"],
+        desc:"A vivid garden memory — green leaves and crisp freshness.",
+        vec:{ fresh:2, floral:0, amber:0, woody:0, green:4, clean:2, sweet:0, smoky:0, bold:0 }
+      },
+      {
+        key:"soul_of_the_forest",
+        name:"Soul of the Forest",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-soul-of-the-forest-S33YX0131SV0086961.html",
+        img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dw1c54a6c1/images/large/S33YX0032_S11389_961_F.jpg",
+        tags:["Forest","Woody","Earthy"],
+        desc:"Deep forest air — earthy woods and natural depth.",
+        vec:{ fresh:0, floral:0, amber:1, woody:4, green:2, clean:0, sweet:0, smoky:1, bold:1 }
+      },
+      {
+        key:"untitled_edp",
+        name:"(untitled) Eau de Parfum",
+        url:"https://www.maisonmargiela.com/fr-fr/eau-de-parfum-%28untitled%29-S33YX0134SV0090961.html",
+        img:"https://www.maisonmargiela.com/dw/image/v2/AAPK_PRD/on/demandware.static/-/Sites-margiela-master-catalog/default/dwe523aa1f/images/large/S33YX0134_SV0090_961_F.jpg",
+        tags:["Minimal","Clean","Modern"],
+        desc:"A minimalist signature — clean modernity with subtle character.",
+        vec:{ fresh:2, floral:1, amber:0, woody:1, green:1, clean:3, sweet:0, smoky:0, bold:0 }
+      }
+    ];
 
     function buildUserVector(){
       const v = { fresh:0, floral:0, amber:0, woody:0, green:0, clean:0, sweet:0, smoky:0, bold:0 };
 
-      // level
       if (state.level === "beginner"){ v.clean += 1; v.bold -= 1; }
       if (state.level === "expert"){ v.bold += 1; }
 
-      // scene
       const s = new Set(state.scene);
       if (s.has("daily")){ v.clean += 2; v.fresh += 1; }
       if (s.has("work")){ v.clean += 1; v.woody += 1; }
@@ -949,7 +909,6 @@ function buildReason3(p){
       if (s.has("sport")){ v.fresh += 2; v.clean += 1; }
       if (s.has("event")){ v.bold += 2; v.amber += 1; v.woody += 1; }
 
-      // vibe
       const vibeMap = {
         rain: { fresh:2, green:1 },
         coffee: { amber:2, sweet:1 },
@@ -966,7 +925,6 @@ function buildReason3(p){
         Object.keys(m).forEach(k => v[k] += m[k]);
       });
 
-      // family
       state.family.forEach(x => {
         if (x === "citrus") v.fresh += 3;
         if (x === "floral") v.floral += 3;
@@ -975,20 +933,17 @@ function buildReason3(p){
         if (x === "green") v.green += 3;
       });
 
-      // sweetness / smoky
       const sweetMap = { none:0, light:1, medium:2, high:3 };
       if (state.sweetness) v.sweet += sweetMap[state.sweetness] ?? 0;
 
       const smokyMap = { none:0, low:1, medium:2, high:3 };
       if (state.smoky) v.smoky += smokyMap[state.smoky] ?? 0;
 
-      // intensity
       if (state.intensity === "very-fresh"){ v.fresh += 2; v.bold -= 1; }
       if (state.intensity === "balanced"){ v.fresh += 1; v.amber += 1; }
       if (state.intensity === "rich"){ v.amber += 2; v.bold += 1; }
       if (state.intensity === "very-rich"){ v.amber += 3; v.bold += 2; v.woody += 1; }
 
-      // impression
       const imp = new Set(state.impression);
       if (imp.has("clean")){ v.clean += 2; v.fresh += 1; }
       if (imp.has("soft")){ v.floral += 1; v.clean += 1; }
@@ -997,7 +952,6 @@ function buildReason3(p){
       if (imp.has("relaxed")){ v.fresh += 1; v.green += 1; }
       if (imp.has("mysterious")){ v.woody += 1; v.smoky += 1; v.bold += 1; }
 
-      // city (light heuristic)
       const c = (state.city || "").toLowerCase();
       if (c.includes("paris")){ v.floral += 1; v.clean += 1; }
       if (c.includes("tokyo")){ v.clean += 2; v.fresh += 1; }
@@ -1056,36 +1010,34 @@ function buildReason3(p){
       if (state.intensity) chips.push({
         "very-fresh":"Very fresh", "balanced":"Balanced", "rich":"Intense", "very-rich":"Very intense"
       }[state.intensity]);
+
       chips.slice(0,10).forEach(t => {
         const d = document.createElement("div");
         d.className = "chip";
         d.textContent = t;
         chipLine.appendChild(d);
       });
+
       const reasonLines = document.getElementById("reasonLines");
+      const core = Object.entries({
+        Clean: userV.clean,
+        Fresh: userV.fresh,
+        Floral: userV.floral,
+        Woody: userV.woody,
+        Amber: userV.amber,
+        Green: userV.green
+      }).sort((a,b)=>b[1]-a[1])[0][0];
 
-// 3-sentence, 3 key points (short)
-const core = Object.entries({
-  Clean: userV.clean,
-  Fresh: userV.fresh,
-  Floral: userV.floral,
-  Woody: userV.woody,
-  Amber: userV.amber,
-  Green: userV.green
-}).sort((a,b)=>b[1]-a[1])[0][0];
-
-const lines = [
-  climateReason(),                         // from temp/rh buckets
-  sceneReason(state.scene),                // from scene selection
-  `Core direction: ${core} — so we prioritized scents that express this clearly without feeling heavy.`
-];
-
-// Render as 3 bullets
-reasonLines.innerHTML = `
-  <div style="display:grid;gap:8px;font-size:13px;color:#6b6b6b;line-height:1.4">
-    ${lines.map(t => `<div>• ${t}</div>`).join("")}
-  </div>
-`;
+      const lines = [
+        climateReason(),
+        sceneReason(state.scene),
+        `Core direction: ${core} — so we prioritized scents that express this clearly without feeling heavy.`
+      ];
+      reasonLines.innerHTML = `
+        <div style="display:grid;gap:8px;font-size:13px;color:#6b6b6b;line-height:1.4">
+          ${lines.map(t => `<div>• ${t}</div>`).join("")}
+        </div>
+      `;
 
       gallery.innerHTML = "";
       top3.forEach((p, idx) => {
@@ -1106,15 +1058,9 @@ reasonLines.innerHTML = `
             </div>
             <div>
               <p class="sdesc">${p.desc}</p>
-
-<p class="sdesc" style="margin-top:6px;font-size:12px;color:#8a8a8a">
-  Best for: work · clean woods
-</p>
-
-<div class="tags" style="margin-top:10px">
-  ${p.tags.map(t => `<span class="tag">${t}</span>`).join("")}
-</div>
-
+              <div class="tags" style="margin-top:10px">
+                ${p.tags.map(t => `<span class="tag">${t}</span>`).join("")}
+              </div>
             </div>
           </div>
         `;
@@ -1124,168 +1070,27 @@ reasonLines.innerHTML = `
 
     // ---------------- Control wiring ----------------
     function bindNav(){
-  for (let i=0;i<=8;i++){
-    const back = document.getElementById(`back${i}`);
-    const next = document.getElementById(`next${i}`);
+      for (let i=0;i<=8;i++){
+        const back = document.getElementById(`back${i}`);
+        const next = document.getElementById(`next${i}`);
 
-    if (back) back.addEventListener("click", () => goBack());
+        if (back) back.addEventListener("click", () => goBack());
 
-    if (next) next.addEventListener("click", async () => {
-      if (i === 4) updateConditional();
+        if (next) next.addEventListener("click", async () => {
+          if (i === 4) updateConditional();
 
-      if (i === 7){
-        // Weather lookup (non-blocking UX)
-        const oldText = next.textContent;
-        next.disabled = true;
-        showToast("Checking local climate…");
-
-        await hydrateWeatherFromCity(); // NEW
-
-        renderResults();
-        next.disabled = false;
-        next.textContent = oldText;
-      }
-
-      goNext();
-    });
-  }
-}
-
-
-    function goNext(){
-      const cur = step;
-      cards[cur].classList.add("exitLeft");
-      setTimeout(() => showCard(cur + 1), 180);
-    }
-    function goBack(){
-      showCard(Math.max(0, step - 1));
-    }
-
-    function showCard(idx){
-      cards.forEach(c => c.classList.remove("active","exitLeft"));
-      const target = cards[idx];
-      if (!target) return;
-      target.classList.add("active");
-      step = idx;
-
-      // progress only counts question cards 0..7; results is 8
-      if (idx <= 7){
-        stepText.textContent = `${idx + 1} / ${total}`;
-        barFill.style.width = `${(idx / (total - 1)) * 100}%`;
-      } else {
-        stepText.textContent = `${total} / ${total}`;
-        barFill.style.width = `100%`;
-      }
-
-      validateCard(Math.min(idx,7));
-      window.scrollTo({top:0, behavior:"smooth"});
-      if (idx === 2) setTimeout(() => cityInput.focus(), 120);
-    }
-
-    // ---------------- Option behavior ----------------
-    function toggleOption(el){
-      const q = el.dataset.q;
-      const type = el.dataset.type;
-      const val = el.dataset.val;
-
-      if (type === "single"){
-        state[q] = val;
-        document.querySelectorAll(`.opt[data-q="${q}"]`).forEach(x => x.classList.remove("on"));
-        el.classList.add("on");
-      } else {
-        const max = parseInt(el.dataset.max || "99", 10);
-        const arr = state[q] || [];
-        const idx = arr.indexOf(val);
-        if (idx >= 0){
-          arr.splice(idx, 1);
-          el.classList.remove("on");
-        } else {
-          if (arr.length >= max){
-            showToast(`Max ${max} selections.`);
-            return;
+          if (i === 7){
+            const oldText = next.textContent;
+            next.disabled = true;
+            showToast("Checking local climate…");
+            await hydrateWeatherFromCity();
+            renderResults();
+            next.disabled = false;
+            next.textContent = oldText;
           }
-          arr.push(val);
-          el.classList.add("on");
-        }
-        state[q] = arr;
-      }
 
-      if (q === "family") updateConditional();
-
-      validateCard(step);
-
-      // Auto-advance for single-choice cards: card 0 & 6, plus conditional card if only one block shown and chosen
-      if (type === "single"){
-        const nextBtn = document.getElementById(`next${step}`);
-        if (nextBtn && !nextBtn.disabled){
-          setTimeout(() => nextBtn.click(), 160);
-        }
-      }
-    }
-
-    let __lastTapAt = 0;
-
-document.querySelectorAll(".opt").forEach((el) => {
-  const handler = (e) => {
-    // Deduplicate: avoid touchend + click double fire on iOS
-    const now = Date.now();
-    if (now - __lastTapAt < 250) return;
-    __lastTapAt = now;
-
-    e.preventDefault();
-    e.stopPropagation();
-    toggleOption(el);
-  };
-
-  // iOS Safari reliable path
-  el.addEventListener("touchend", handler, { passive: false });
-  // Desktop fallback
-  el.addEventListener("click", handler, { passive: false });
-});
-
-
-
-    cityInput.addEventListener("input", () => { state.city = cityInput.value.trim(); });
-
-    // ---------------- Validation functions ----------------
-    function setNote(cardIdx, ok, text){
-      const n = document.getElementById(`note${cardIdx}`);
-      const next = document.getElementById(`next${cardIdx}`);
-      if (!n || !next) return;
-      n.innerHTML = ok ? `<span class="ok">${text || "Ready."}</span>` : `<span class="warn">${text}</span>`;
-      next.disabled = !ok;
-    }
-
-    function validateCard(cardIdx){
-      if (cardIdx === 0){
-        setNote(0, !!state.level, state.level ? "Ready." : "Please select one option.");
-      }
-      if (cardIdx === 1){
-        setNote(1, state.scene.length > 0, state.scene.length ? "Ready." : "Select at least one context.");
-      }
-      if (cardIdx === 2){
-        setNote(2, true, "You can continue.");
-      }
-      if (cardIdx === 3){
-        setNote(3, state.vibe.length > 0, state.vibe.length ? "Ready." : "Select 1–2 atmospheres.");
-      }
-      if (cardIdx === 4){
-        setNote(4, state.family.length > 0, state.family.length ? "Ready." : "Select 1–2 families.");
-      }
-      if (cardIdx === 5){
-        const needSweet = shouldAskSweetness();
-        const needSmoky = shouldAskSmoky();
-        let ok = true;
-        let msg = "You can continue.";
-        if (needSweet && !state.sweetness){ ok = false; msg = "Select your sweetness tolerance."; }
-        if (needSmoky && !state.smoky){ ok = false; msg = "Select your smoky tolerance."; }
-        setNote(5, ok, msg);
-      }
-      if (cardIdx === 6){
-        setNote(6, !!state.intensity, state.intensity ? "Ready." : "Please select one option.");
-      }
-      if (cardIdx === 7){
-        setNote(7, state.impression.length > 0, state.impression.length ? "Ready." : "Select up to 2 impressions.");
+          goNext();
+        });
       }
     }
 
@@ -1331,9 +1136,8 @@ document.querySelectorAll(".opt").forEach((el) => {
       }
     });
 
-    
-    
-
+    // ---------------- Init ----------------
+    bindOptionDelegation();
     bindNav();
     showCard(0);
     updateConditional();
@@ -1341,14 +1145,3 @@ document.querySelectorAll(".opt").forEach((el) => {
   </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
