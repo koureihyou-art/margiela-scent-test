@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI Scent Matching — Maison Margiela</title>
+
+<style>
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #fafafa;
+  margin: 0;
+  padding: 24px;
+  color: #111;
+}
+
+.container {
+  max-width: 820px;
+  margin: auto;
+  background: white;
+  border-radius: 18px;
+  padding: 28px 22px;
+  box-shadow: 0 10px 30px rgba(0,0,0,.06);
+}
+
+h1 {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.question {
+  margin-top: 22px;
+}
+
+label {
+  display: block;
+  padding: 6px 0;
+  cursor: pointer;
+}
+
+input {
+  margin-right: 8px;
+}
+
+button {
+  margin-top: 26px;
+  width: 100%;
+  padding: 14px;
+  border-radius: 10px;
+  border: none;
+  background: black;
+  color: white;
+  font-size: 16px;
+}
+
+.result-card {
+  margin-top: 26px;
+  padding-top: 18px;
+  border-top: 1px solid #eee;
+}
+
+.badge {
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #f3f3f3;
+  margin: 6px 6px 0 0;
+  font-size: 13px;
+}
+
+.scent-title {
+  font-weight: 600;
+  margin-top: 14px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>AI 香水匹配测试</h1>
+<p>Maison Margiela Replica 系列 · 智能香味推荐</p>
+
+<form id="quiz">
+
+<div class="question">
+<h3>1. 你是第一次使用香水还是资深玩家？</h3>
+<label><input type="radio" name="level" value="beginner"> 第一次</label>
+<label><input type="radio" name="level" value="expert"> 资深玩家</label>
+</div>
+
+<div class="question">
+<h3>2. 你通常会在哪些场景使用香水？（可多选）</h3>
+<label><input type="checkbox" name="scene" value="daily"> 日常生活</label>
+<label><input type="checkbox" name="scene" value="work"> 职场商务</label>
+<label><input type="checkbox" name="scene" value="date"> 约会晚宴</label>
+<label><input type="checkbox" name="scene" value="travel"> 旅行度假</label>
+<label><input type="checkbox" name="scene" value="sport"> 运动休闲</label>
+<label><input type="checkbox" name="scene" value="event"> 仪式晚会</label>
+</div>
+
+<div class="question">
+<h3>3. 你一年中主要生活在哪个城市？</h3>
+<input type="text" name="city" placeholder="例如：巴黎 / 东京 / 上海" style="width:100%; padding:10px;">
+</div>
+
+<div class="question">
+<h3>4. 你更喜欢哪种气味氛围？（最多选2）</h3>
+<label><input type="checkbox" name="vibe" value="fresh"> 雨后空气</label>
+<label><input type="checkbox" name="vibe" value="coffee"> 咖啡香草</label>
+<label><input type="checkbox" name="vibe" value="paper"> 新书与木头</label>
+<label><input type="checkbox" name="vibe" value="rose"> 玫瑰与白花</label>
+<label><input type="checkbox" name="vibe" value="citrus"> 柑橘与阳光</label>
+<label><input type="checkbox" name="vibe" value="bread"> 面包出炉</label>
+<label><input type="checkbox" name="vibe" value="wood"> 旧木家具</label>
+<label><input type="checkbox" name="vibe" value="clean"> 洗净衣物</label>
+</div>
+
+<div class="question">
+<h3>5. 你更被哪类气味吸引？（最多选2）</h3>
+<label><input type="checkbox" name="family" value="citrus"> 柑橘</label>
+<label><input type="checkbox" name="family" value="floral"> 花香</label>
+<label><input type="checkbox" name="family" value="amber"> 琥珀甜感</label>
+<label><input type="checkbox" name="family" value="woody"> 木质</label>
+<label><input type="checkbox" name="family" value="green"> 绿香草本</label>
+</div>
+
+<div class="question">
+<h3>6. 你更偏好清新还是浓郁？</h3>
+<label><input type="radio" name="intensity" value="fresh"> 非常清新</label>
+<label><input type="radio" name="intensity" value="balanced"> 平衡</label>
+<label><input type="radio" name="intensity" value="rich"> 偏浓郁</label>
+<label><input type="radio" name="intensity" value="very-rich"> 非常浓郁</label>
+</div>
+
+<div class="question">
+<h3>7. 你希望这个香味带给别人什么印象？</h3>
+<label><input type="checkbox" name="persona" value="clean"> 干净专业</label>
+<label><input type="checkbox" name="persona" value="soft"> 温柔治愈</label>
+<label><input type="checkbox" name="persona" value="cool"> 高级冷感</label>
+<label><input type="checkbox" name="persona" value="sexy"> 性感迷人</label>
+<label><input type="checkbox" name="persona" value="relaxed"> 自然松弛</label>
+<label><input type="checkbox" name="persona" value="mysterious"> 神秘独特</label>
+</div>
+
+<button type="button" onclick="calculate()">生成我的香水推荐</button>
+
+</form>
+
+<div id="results"></div>
+
+</div>
+
+<script>
+function calculate() {
+  const data = new FormData(document.getElementById("quiz"));
+
+  let score = { fresh:0, floral:0, woody:0, amber:0, green:0 };
+
+  data.getAll("family").forEach(f => score[f] += 3);
+
+  data.getAll("vibe").forEach(v => {
+    if (["fresh","citrus","clean"].includes(v)) score.fresh += 2;
+    if (["rose"].includes(v)) score.floral += 2;
+    if (["wood","paper"].includes(v)) score.woody += 2;
+    if (["coffee","bread"].includes(v)) score.amber += 2;
+  });
+
+  const perfumes = [
+    { name:"Lazy Sunday Morning", tags:["fresh","floral","clean"] },
+    { name:"Bubble Bath", tags:["fresh","clean"] },
+    { name:"By the Fireplace", tags:["woody","amber"] },
+    { name:"Jazz Club", tags:["amber","woody"] },
+    { name:"Sailing Day", tags:["fresh","green"] },
+    { name:"Springtime in a Park", tags:["floral","fresh"] },
+    { name:"Coffee Break", tags:["amber","coffee"] },
+    { name:"Whispers in the Library", tags:["woody","paper"] }
+  ];
+
+  let ranked = perfumes.map(p => {
+    let s = 0;
+    p.tags.forEach(tag => s += score[tag] || 0);
+    return { ...p, score:s };
+  }).sort((a,b)=>b.score-a.score);
+
+  let top3 = ranked.slice(0,3);
+
+  let html = `
+  <div class="result-card">
+    <h2>你的 Maison Margiela 香味画像</h2>
+    <p>风格：精致 · 记忆感 · 情绪驱动</p>
+    <h3 style="margin-top:12px;">推荐香水</h3>
+  `;
+
+  top3.forEach((p,i) => {
+    html += `<div class="scent-title">#${i+1} ${p.name}</div>`;
+    p.tags.forEach(t => html += `<span class="badge">${t}</span>`);
+  });
+
+  html += "</div>";
+
+  document.getElementById("results").innerHTML = html;
+}
+</script>
+
+</body>
+</html>
