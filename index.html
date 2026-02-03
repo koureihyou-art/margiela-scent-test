@@ -705,71 +705,184 @@
 
     // ---------------- Matching ----------------
     const scents = [
-  {
-    key:"lazy_sunday_morning",
-    name:"Lazy Sunday Morning",
-    img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwd5bce2b7/images/large/S33YX0018_S10932_001_F.jpg",
-    tags:["Clean","Musky","Soft Floral"],
-    desc:"Clean linen, soft musk, gentle florals — effortless and intimate.",
-    vec:{ fresh:3, floral:2, amber:0, woody:0, green:1, clean:3, sweet:0, smoky:0, bold:0 }
-  },
-  {
-    key:"bubble_bath",
-    name:"Bubble Bath",
-    img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw5e3bda35/images/large/S33YX0087_S11972_961_F.jpg",
-    tags:["Soapy","Coconut","Clean"],
-    desc:"Soapy cleanliness with a cozy skin-like comfort.",
-    vec:{ fresh:3, floral:1, amber:0, woody:0, green:1, clean:3, sweet:1, smoky:0, bold:0 }
-  },
-  {
-    key:"sailing_day",
-    name:"Sailing Day",
-    img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwb34637e5/images/large/S33YX0056_S11604_961_F.jpg",
-    tags:["Marine","Fresh","Aromatic"],
-    desc:"Oceanic freshness and airy aromatics — crisp and uplifting.",
-    vec:{ fresh:4, floral:0, amber:0, woody:0, green:2, clean:2, sweet:0, smoky:0, bold:0 }
-  },
-  {
-    key:"springtime_in_a_park",
-    name:"Springtime in a Park",
-    img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw90491b11/images/large/S33YX0078_S11919_961_F.jpg",
-    tags:["Floral","Green","Bright"],
-    desc:"A bright floral bouquet with a fresh spring breeze.",
-    vec:{ fresh:2, floral:4, amber:0, woody:0, green:2, clean:1, sweet:1, smoky:0, bold:0 }
-  },
-  {
-    key:"coffee_break",
-    name:"Coffee Break",
-    img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw1c6c7669/images/large/S33YX0075_S11917_961_F.jpg",
-    tags:["Coffee","Creamy","Warm"],
-    desc:"Coffee-laced comfort with a creamy sweetness.",
-    vec:{ fresh:0, floral:1, amber:4, woody:1, green:0, clean:0, sweet:3, smoky:0, bold:1 }
-  },
-  {
-    key:"jazz_club",
-    name:"Jazz Club",
-    img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw4b01e89f/images/large/S33YX0016_S10930_001_F.jpg",
-    tags:["Rum","Tobacco","Amber"],
-    desc:"Warm rum, tobacco and amber — charismatic and nocturnal.",
-    vec:{ fresh:0, floral:0, amber:4, woody:2, green:0, clean:0, sweet:2, smoky:1, bold:2 }
-  },
-  {
-    key:"by_the_fireplace",
-    name:"By the Fireplace",
-    img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwd0b597c5/images/large/S33YX0024_S11331_961_F.jpg",
-    tags:["Smoky","Woods","Vanilla"],
-    desc:"Smoky woods and toasted warmth — iconic winter comfort.",
-    vec:{ fresh:0, floral:0, amber:3, woody:4, green:0, clean:0, sweet:2, smoky:3, bold:2 }
-  },
-  {
-    key:"whispers_in_the_library",
-    name:"Whispers in the Library",
-    img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwdad957dd/images/large/S33YX0059_S11721_961_F.jpg",
-    tags:["Paper","Woods","Soft Spice"],
-    desc:"Paper, woods and soft spice — quiet, intellectual, refined.",
-    vec:{ fresh:1, floral:0, amber:1, woody:4, green:0, clean:1, sweet:0, smoky:0, bold:1 }
-  }
-];
+    // ===== 你原来的 8 个（保留原图） =====
+    {
+      key:"lazy_sunday_morning",
+      name:"Lazy Sunday Morning",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-lazy-sunday-morning-S33YX0018S10932001.html",
+      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwd5bce2b7/images/large/S33YX0018_S10932_001_F.jpg",
+      tags:["Clean","Musky","Soft Floral"],
+      desc:"Clean linen, soft musk, gentle florals — effortless and intimate.",
+      vec:{ fresh:3, floral:2, amber:0, woody:0, green:1, clean:3, sweet:0, smoky:0, bold:0 }
+    },
+    {
+      key:"bubble_bath",
+      name:"Bubble Bath",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-bubble-bath-S33YX0087S11972961.html",
+      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw5e3bda35/images/large/S33YX0087_S11972_961_F.jpg",
+      tags:["Soapy","Coconut","Clean"],
+      desc:"Soapy cleanliness with a cozy skin-like comfort.",
+      vec:{ fresh:3, floral:1, amber:0, woody:0, green:1, clean:3, sweet:1, smoky:0, bold:0 }
+    },
+    {
+      key:"sailing_day",
+      name:"Sailing Day",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-sailing-day-S33YX0056S11604961.html",
+      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwb34637e5/images/large/S33YX0056_S11604_961_F.jpg",
+      tags:["Marine","Fresh","Aromatic"],
+      desc:"Oceanic freshness and airy aromatics — crisp and uplifting.",
+      vec:{ fresh:4, floral:0, amber:0, woody:0, green:2, clean:2, sweet:0, smoky:0, bold:0 }
+    },
+    {
+      key:"springtime_in_a_park",
+      name:"Springtime in a Park",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-springtime-in-a-park-S33YX0078S11919961.html",
+      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw90491b11/images/large/S33YX0078_S11919_961_F.jpg",
+      tags:["Floral","Green","Bright"],
+      desc:"A bright floral bouquet with a fresh spring breeze.",
+      vec:{ fresh:2, floral:4, amber:0, woody:0, green:2, clean:1, sweet:1, smoky:0, bold:0 }
+    },
+    {
+      key:"coffee_break",
+      name:"Coffee Break",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-coffee-break-S33YX0075S11917961.html",
+      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw1c6c7669/images/large/S33YX0075_S11917_961_F.jpg",
+      tags:["Coffee","Creamy","Warm"],
+      desc:"Coffee-laced comfort with a creamy sweetness.",
+      vec:{ fresh:0, floral:1, amber:4, woody:1, green:0, clean:0, sweet:3, smoky:0, bold:1 }
+    },
+    {
+      key:"jazz_club",
+      name:"Jazz Club",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-jazz-club-S33YX0016S10930001.html",
+      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dw4b01e89f/images/large/S33YX0016_S10930_001_F.jpg",
+      tags:["Rum","Tobacco","Amber"],
+      desc:"Warm rum, tobacco and amber — charismatic and nocturnal.",
+      vec:{ fresh:0, floral:0, amber:4, woody:2, green:0, clean:0, sweet:2, smoky:1, bold:2 }
+    },
+    {
+      key:"by_the_fireplace",
+      name:"By the Fireplace",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-by-the-fireplace-S33YX0024S11331961.html",
+      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwd0b597c5/images/large/S33YX0024_S11331_961_F.jpg",
+      tags:["Smoky","Woods","Vanilla"],
+      desc:"Smoky woods and toasted warmth — iconic winter comfort.",
+      vec:{ fresh:0, floral:0, amber:3, woody:4, green:0, clean:0, sweet:2, smoky:3, bold:2 }
+    },
+    {
+      key:"whispers_in_the_library",
+      name:"Whispers in the Library",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-whispers-in-the-library-S33YX0059S11721961.html",
+      img:"https://www.maisonmargiela.com/on/demandware.static/-/Sites-margiela-master-catalog/default/dwdad957dd/images/large/S33YX0059_S11721_961_F.jpg",
+      tags:["Paper","Woods","Soft Spice"],
+      desc:"Paper, woods and soft spice — quiet, intellectual, refined.",
+      vec:{ fresh:1, floral:0, amber:1, woody:4, green:0, clean:1, sweet:0, smoky:0, bold:1 }
+    },
+
+    // ===== 新增：官网“香水”产品（先不强行填 img，避免错图；下一步你给我图链接我再补全） =====
+    {
+      key:"beach_walk",
+      name:"Beach Walk",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-beach-walk-S33YX0014S10931001.html",
+      img:"",
+      tags:["Sunny","Salty","Coconut"],
+      desc:"A sun-warmed beach memory — salty air and creamy comfort.",
+      vec:{ fresh:2, floral:1, amber:1, woody:0, green:0, clean:1, sweet:1, smoky:0, bold:0 }
+    },
+    {
+      key:"under_the_stars",
+      name:"Under the Stars",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-under-the-stars-S33YX0124S12594961.html",
+      img:"",
+      tags:["Warm","Spicy","Resinous"],
+      desc:"A night-sky vibe — warm spice and deep, resinous woods.",
+      vec:{ fresh:0, floral:0, amber:3, woody:3, green:0, clean:0, sweet:1, smoky:2, bold:2 }
+    },
+    {
+      key:"on_a_date",
+      name:"On a Date",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-on-a-date-S33YX0126SV0060961.html",
+      img:"",
+      tags:["Fruity","Rose","Sunset"],
+      desc:"Late-summer Provence — ripe fruit brightness with a rose edge.",
+      vec:{ fresh:1, floral:3, amber:1, woody:0, green:1, clean:1, sweet:1, smoky:0, bold:1 }
+    },
+    {
+      key:"matcha_meditation",
+      name:"Matcha Meditation",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-matcha-meditation-S33YX0125SV0046961.html",
+      img:"",
+      tags:["Tea","Creamy","Soft Green"],
+      desc:"A creamy matcha moment — gentle green comfort and calm.",
+      vec:{ fresh:1, floral:1, amber:1, woody:0, green:3, clean:1, sweet:1, smoky:0, bold:0 }
+    },
+    {
+      key:"from_the_garden",
+      name:"From the Garden",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-from-the-garden-S33YX0177M10053961.html",
+      img:"",
+      tags:["Green","Tomato Leaf","Fresh"],
+      desc:"A vivid garden memory — green leaves and crisp freshness.",
+      vec:{ fresh:2, floral:0, amber:0, woody:0, green:4, clean:2, sweet:0, smoky:0, bold:0 }
+    },
+    {
+      key:"soul_of_the_forest",
+      name:"Soul of the Forest",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-toilette-replica-soul-of-the-forest-S33YX0131SV0086961.html",
+      img:"",
+      tags:["Forest","Woody","Earthy"],
+      desc:"Deep forest air — earthy woods and natural depth.",
+      vec:{ fresh:0, floral:0, amber:1, woody:4, green:2, clean:0, sweet:0, smoky:1, bold:1 }
+    },
+    {
+      key:"untitled_edp",
+      name:"(untitled) Eau de Parfum",
+      url:"https://www.maisonmargiela.com/fr-fr/eau-de-parfum-%28untitled%29-S33YX0134SV0090961.html",
+      img:"",
+      tags:["Minimal","Clean","Modern"],
+      desc:"A minimalist signature — clean modernity with subtle character.",
+      vec:{ fresh:2, floral:1, amber:0, woody:1, green:1, clean:3, sweet:0, smoky:0, bold:0 }
+    },
+
+    // ===== 新增：官网“香水套装”（也属于香水/香氛产品，你如果不想显示套装，我下一步给你一键关掉） =====
+    {
+      key:"memory_box_10",
+      name:"REPLICA Memory Box Set",
+      url:"https://www.maisonmargiela.com/fr-fr/replica-memory-box-set-S33VX0175S14302961.html",
+      img:"",
+      tags:["Set","Discovery","10×"],
+      desc:"A discovery set for sampling multiple REPLICA scents.",
+      vec:{ fresh:1, floral:1, amber:1, woody:1, green:1, clean:1, sweet:1, smoky:1, bold:0 }
+    },
+    {
+      key:"memory_box_10_olf",
+      name:"REPLICA Memory Box Set",
+      url:"https://www.maisonmargiela.com/fr-fr/replica-memory-box-set-S33VX0176S14741961.html",
+      img:"",
+      tags:["Set","Discovery","10×"],
+      desc:"A discovery set for sampling multiple REPLICA scents.",
+      vec:{ fresh:1, floral:1, amber:1, woody:1, green:1, clean:1, sweet:1, smoky:1, bold:0 }
+    },
+    {
+      key:"memory_box_7",
+      name:"REPLICA Memory Box Set",
+      url:"https://www.maisonmargiela.com/fr-fr/replica-memory-box-set-S33VX0177S15793961.html",
+      img:"",
+      tags:["Set","Discovery","7×"],
+      desc:"A compact discovery set — try multiple directions quickly.",
+      vec:{ fresh:1, floral:1, amber:1, woody:1, green:1, clean:1, sweet:1, smoky:1, bold:0 }
+    },
+    {
+      key:"memory_box_7_olf",
+      name:"REPLICA Memory Box Set",
+      url:"https://www.maisonmargiela.com/fr-fr/replica-memory-box-set-S33VX0178S15901961.html",
+      img:"",
+      tags:["Set","Discovery","7×"],
+      desc:"A compact discovery set — try multiple directions quickly.",
+      vec:{ fresh:1, floral:1, amber:1, woody:1, green:1, clean:1, sweet:1, smoky:1, bold:0 }
+    }
+  ];
+
 
     function buildUserVector(){
       const v = { fresh:0, floral:0, amber:0, woody:0, green:0, clean:0, sweet:0, smoky:0, bold:0 };
@@ -1138,5 +1251,6 @@
   </script>
 </body>
 </html>
+
 
 
