@@ -463,6 +463,12 @@
             <div class="chips" id="chipLine"></div>
           </div>
 
+          <div class="personaBox" id="reasonBox" style="margin-top:12px">
+           <p class="p1">WHY THESE PICKS</p>
+           <div id="reasonLines" style="margin-top:6px"></div>
+          </div>
+
+
           <div class="gallery" id="gallery"></div>
 
           <div class="ctaRow">
@@ -1111,6 +1117,30 @@ function buildReason3(p){
         d.textContent = t;
         chipLine.appendChild(d);
       });
+      const reasonLines = document.getElementById("reasonLines");
+
+// 3-sentence, 3 key points (short)
+const core = Object.entries({
+  Clean: userV.clean,
+  Fresh: userV.fresh,
+  Floral: userV.floral,
+  Woody: userV.woody,
+  Amber: userV.amber,
+  Green: userV.green
+}).sort((a,b)=>b[1]-a[1])[0][0];
+
+const lines = [
+  climateReason(),                         // from temp/rh buckets
+  sceneReason(state.scene),                // from scene selection
+  `Core direction: ${core} — so we prioritized scents that express this clearly without feeling heavy.`
+];
+
+// Render as 3 bullets
+reasonLines.innerHTML = `
+  <div style="display:grid;gap:8px;font-size:13px;color:#6b6b6b;line-height:1.4">
+    ${lines.map(t => `<div>• ${t}</div>`).join("")}
+  </div>
+`;
 
       gallery.innerHTML = "";
       top3.forEach((p, idx) => {
@@ -1370,6 +1400,7 @@ function buildReason3(p){
   </script>
 </body>
 </html>
+
 
 
 
