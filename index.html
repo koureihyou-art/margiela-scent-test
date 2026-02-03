@@ -12,14 +12,14 @@
       --ink:#111111;
       --muted:#6b6b6b;
       --line:#e8e8e8;
-      --shadow:0 16px 42px rgba(0,0,0,.08);
-      --shadow2:0 10px 26px rgba(0,0,0,.10);
+      --shadow:0 18px 46px rgba(0,0,0,.10);
+      --shadow2:0 14px 34px rgba(0,0,0,.14);
       --radius:18px;
       --radius2:14px;
       --btn:#111;
       --btnText:#fff;
       --danger:#b00020;
-      --safe:#0b6b3a;
+      --ok:#0b6b3a;
     }
 
     *{box-sizing:border-box}
@@ -31,18 +31,19 @@
       font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, system-ui, sans-serif;
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
+      overflow-x:hidden;
     }
 
     .wrap{max-width:980px;margin:0 auto;padding:18px 18px 34px;}
-    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:12px 6px 4px;}
+    .topbar{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;padding:12px 6px 10px;}
     .brand{display:flex;flex-direction:column;gap:4px;}
     .brand .kicker{letter-spacing:.18em;text-transform:uppercase;font-size:11px;color:var(--muted);}
-    .brand h1{margin:0;font-size:20px;letter-spacing:.02em;font-weight:600;}
+    .brand h1{margin:0;font-size:20px;letter-spacing:.02em;font-weight:650;}
     .brand .sub{margin:0;font-size:13px;color:var(--muted);line-height:1.35;max-width:560px;}
 
     .pill{
       display:inline-flex;align-items:center;gap:8px;padding:10px 12px;
-      background:rgba(255,255,255,.7);border:1px solid var(--line);
+      background:rgba(255,255,255,.75);border:1px solid var(--line);
       border-radius:999px;box-shadow:0 8px 22px rgba(0,0,0,.06);
       backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px);user-select:none;
     }
@@ -50,7 +51,7 @@
     .pill span{font-size:12px;color:var(--muted)}
 
     .progressWrap{
-      margin:10px 6px 14px;padding:14px 14px 12px;background:rgba(255,255,255,.7);
+      margin:0 6px 14px;padding:14px 14px 12px;background:rgba(255,255,255,.75);
       border:1px solid var(--line);border-radius:var(--radius2);
       box-shadow:0 10px 28px rgba(0,0,0,.06);
       backdrop-filter: blur(10px);-webkit-backdrop-filter: blur(10px);
@@ -61,16 +62,47 @@
     .bar{height:8px;border-radius:999px;background:#e9e9e9;overflow:hidden;}
     .bar>i{display:block;height:100%;width:0%;background:#111;border-radius:999px;transition:width .35s ease;}
 
-    .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);overflow:hidden;}
-    .hero{padding:22px 22px 10px;border-bottom:1px solid var(--line);background:linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,0));}
-    .hero .title{margin:0 0 6px;font-size:18px;font-weight:650;letter-spacing:.01em;}
+    /* Single card stage */
+    .stage{
+      position:relative;
+      min-height: 520px;
+    }
+
+    .card{
+      position:absolute;
+      left:0; right:0;
+      margin:0 6px;
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      opacity:0;
+      transform: translateY(12px);
+      pointer-events:none;
+      transition: opacity .25s ease, transform .25s ease;
+    }
+    .card.active{
+      opacity:1;
+      transform: translateY(0);
+      pointer-events:auto;
+    }
+    .card.exitLeft{
+      opacity:0;
+      transform: translateX(-18px) translateY(6px);
+      pointer-events:none;
+    }
+
+    .hero{
+      padding:22px 22px 12px;
+      border-bottom:1px solid var(--line);
+      background: linear-gradient(180deg, rgba(0,0,0,.02), rgba(0,0,0,0));
+    }
+    .hero .title{margin:0 0 6px;font-size:18px;font-weight:700;letter-spacing:.01em;}
     .hero .hint{margin:0;font-size:13px;color:var(--muted);line-height:1.4;}
 
-    .step{display:none;padding:18px 22px 22px;animation:fadeUp .28s ease both;}
-    .step.active{display:block}
-    @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-    .q{margin:2px 0 12px;font-size:15px;font-weight:650;letter-spacing:.01em;}
+    .body{padding:18px 22px 22px;}
+    .q{margin:2px 0 12px;font-size:15px;font-weight:700;letter-spacing:.01em;}
     .qmeta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px;color:var(--muted);font-size:12px;}
     .qmeta .limit{padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:#fafafa;}
 
@@ -79,13 +111,22 @@
     @media (max-width:520px){.grid{grid-template-columns:1fr;}}
 
     .opt{
-      border:1px solid var(--line);background:#fff;border-radius:14px;padding:12px 12px;cursor:pointer;
-      user-select:none;transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
-      min-height:48px;display:flex;align-items:center;justify-content:space-between;gap:10px;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:14px;
+      padding:12px 12px;
+      cursor:pointer;
+      user-select:none;
+      transition:transform .12s ease, box-shadow .12s ease, border-color .12s ease, background .12s ease;
+      min-height:48px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
     }
     .opt:active{transform:scale(.99);}
     .opt:hover{box-shadow:0 10px 22px rgba(0,0,0,.06);}
-    .opt .txt{font-size:14px;font-weight:600;}
+    .opt .txt{font-size:14px;font-weight:650;}
     .opt .mini{font-size:12px;color:var(--muted);font-weight:500;}
     .opt .mark{
       width:22px;height:22px;border-radius:999px;border:1px solid var(--line);
@@ -96,33 +137,45 @@
     .opt.on .mark{border-color:rgba(255,255,255,.5);background:rgba(255,255,255,.12);color:#fff;}
 
     .input{
-      width:100%;padding:12px 12px;border-radius:14px;border:1px solid var(--line);
-      font-size:14px;outline:none;transition:box-shadow .12s ease, border-color .12s ease;background:#fff;
+      width:100%;
+      padding:12px 12px;
+      border-radius:14px;
+      border:1px solid var(--line);
+      font-size:14px;
+      outline:none;
+      background:#fff;
+      transition: box-shadow .12s ease, border-color .12s ease;
     }
     .input:focus{border-color:#111;box-shadow:0 0 0 4px rgba(0,0,0,.06);}
 
-    .controls{
-      display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 18px;
-      border-top:1px solid var(--line);background:#fff;
+    .footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:14px 18px;
+      border-top:1px solid var(--line);
+      background:#fff;
     }
     .btn{
-      appearance:none;border:none;border-radius:12px;padding:12px 14px;font-weight:650;font-size:14px;cursor:pointer;
-      transition:transform .12s ease, opacity .12s ease, box-shadow .12s ease, background .12s ease;user-select:none;min-width:120px;
+      appearance:none;border:none;border-radius:12px;padding:12px 14px;font-weight:750;font-size:14px;cursor:pointer;
+      transition:transform .12s ease, opacity .12s ease, box-shadow .12s ease, background .12s ease;
+      user-select:none;min-width:120px;
     }
     .btn:active{transform:scale(.99);}
     .btn.primary{background:var(--btn);color:var(--btnText);box-shadow:0 14px 30px rgba(0,0,0,.18);}
     .btn.ghost{background:#fff;border:1px solid var(--line);color:var(--ink);}
     .btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none;}
     .note{font-size:12px;color:var(--muted);flex:1;text-align:center;padding:0 8px;}
-    .warn{color:var(--danger);font-weight:650;}
-    .ok{color:var(--safe);font-weight:650;}
+    .warn{color:var(--danger);font-weight:750;}
+    .ok{color:var(--ok);font-weight:750;}
 
     /* Results */
     .personaBox{
       padding:14px;border-radius:14px;border:1px solid var(--line);background:#fafafa;margin:12px 0 6px;
     }
     .personaBox .p1{font-size:12px;color:var(--muted);margin:0 0 4px;letter-spacing:.14em;text-transform:uppercase;}
-    .personaBox .p2{margin:0;font-size:15px;font-weight:800;}
+    .personaBox .p2{margin:0;font-size:15px;font-weight:850;}
     .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
     .chip{background:#f1f1f1;color:#111;padding:6px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line);}
 
@@ -139,11 +192,9 @@
     @keyframes cardIn{to{transform:translateY(0);opacity:1;}}
     .scentTop{padding:14px 14px 12px;border-bottom:1px solid var(--line);display:flex;align-items:flex-start;justify-content:space-between;gap:10px;}
     .rank{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);}
-    .sname{margin:4px 0 0;font-size:16px;font-weight:800;letter-spacing:.01em;}
+    .sname{margin:4px 0 0;font-size:16px;font-weight:850;letter-spacing:.01em;}
     .scentBody{padding:14px;display:grid;grid-template-columns:110px 1fr;gap:12px;align-items:center;}
-    .imgWrap{
-      width:110px;height:140px;border:1px solid var(--line);border-radius:14px;background:#fbfbfb;display:grid;place-items:center;overflow:hidden;position:relative;
-    }
+    .imgWrap{width:110px;height:140px;border:1px solid var(--line);border-radius:14px;background:#fbfbfb;display:grid;place-items:center;overflow:hidden;position:relative;}
     .imgWrap img{width:100%;height:100%;object-fit:cover;display:block;}
     .imgHint{
       position:absolute;bottom:8px;left:8px;right:8px;font-size:11px;color:rgba(17,17,17,.65);
@@ -154,9 +205,7 @@
     .tags{margin-top:10px;display:flex;flex-wrap:wrap;gap:8px;}
     .tag{background:#f3f3f3;border:1px solid var(--line);border-radius:999px;padding:6px 10px;font-size:12px;color:#111;}
     .ctaRow{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap;}
-    .miniBtn{
-      border:1px solid var(--line);background:#fff;color:#111;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:650;cursor:pointer;
-    }
+    .miniBtn{border:1px solid var(--line);background:#fff;color:#111;border-radius:12px;padding:10px 12px;font-size:13px;font-weight:750;cursor:pointer;}
 
     /* Toast */
     .toast{position:fixed;left:18px;right:18px;bottom:18px;max-width:980px;margin:0 auto;display:none;z-index:50;}
@@ -164,7 +213,7 @@
       background:#111;color:#fff;padding:12px 14px;border-radius:14px;box-shadow:0 18px 50px rgba(0,0,0,.22);
       display:flex;align-items:center;justify-content:space-between;gap:12px;font-size:13px;
     }
-    .toast button{border:none;background:rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:8px 10px;font-weight:800;cursor:pointer;}
+    .toast button{border:none;background:rgba(255,255,255,.12);color:#fff;border-radius:10px;padding:8px 10px;font-weight:850;cursor:pointer;}
   </style>
 </head>
 
@@ -172,185 +221,262 @@
   <div class="wrap">
     <div class="topbar">
       <div class="brand">
-        <div class="kicker">AI SCENT MATCHING · DEMO</div>
+        <div class="kicker">AI SCENT MATCHING · SINGLE-CARD FLOW</div>
         <h1>Maison Margiela — Replica</h1>
-        <p class="sub">Answer step-by-step. The system outputs <b>Top 3</b> recommended scents as swipeable cards (iPad-ready).</p>
+        <p class="sub">Each question appears as one card. Once answered, it disappears and the next card slides in.</p>
       </div>
-      <div class="pill" id="pillState">
-        <b id="pillTitle">Live Demo</b>
-        <span id="pillSub">Touch-friendly</span>
+      <div class="pill">
+        <b>Demo</b><span>iPad-friendly</span>
       </div>
     </div>
 
     <div class="progressWrap">
       <div class="progressRow">
         <div class="label">progress</div>
-        <div class="stepText" id="stepText">Step 1 / 9</div>
+        <div class="stepText" id="stepText">1 / 8</div>
       </div>
       <div class="bar"><i id="barFill"></i></div>
     </div>
 
-    <div class="card">
-      <div class="hero">
-        <p class="title" id="heroTitle">Scent Preference Test</p>
-        <p class="hint" id="heroHint">Go with your intuition. Your choices are mapped to scent families + usage contexts.</p>
-      </div>
+    <div class="stage" id="stage">
 
-      <!-- Step 1 -->
-      <div class="step active" data-step="0">
-        <div class="q">1) Are you new to fragrance or an experienced user?</div>
-        <div class="qmeta"><div>Used to set “safe” vs “bold” recommendation boundaries.</div><div class="limit">Single choice</div></div>
-        <div class="grid">
-          <div class="opt" data-q="level" data-type="single" data-val="beginner">
-            <div><div class="txt">First-time user</div><div class="mini">Easy-to-wear, low aggressiveness</div></div><div class="mark">✓</div>
-          </div>
-          <div class="opt" data-q="level" data-type="single" data-val="expert">
-            <div><div class="txt">Experienced</div><div class="mini">More character & layering</div></div><div class="mark">✓</div>
+      <!-- Card 1 -->
+      <section class="card active" data-step="0">
+        <div class="hero">
+          <p class="title">Scent Preference Test</p>
+          <p class="hint">Go with your intuition. Your choices map to scent families and use contexts.</p>
+        </div>
+        <div class="body">
+          <div class="q">1) Are you new to fragrance or experienced?</div>
+          <div class="qmeta"><div>Sets “safe” vs “bold” boundaries.</div><div class="limit">Single</div></div>
+          <div class="grid">
+            <div class="opt" data-q="level" data-type="single" data-val="beginner">
+              <div><div class="txt">First-time user</div><div class="mini">Easy-to-wear</div></div><div class="mark">✓</div>
+            </div>
+            <div class="opt" data-q="level" data-type="single" data-val="expert">
+              <div><div class="txt">Experienced</div><div class="mini">More character</div></div><div class="mark">✓</div>
+            </div>
           </div>
         </div>
-      </div>
-
-      <!-- Step 2 -->
-      <div class="step" data-step="1">
-        <div class="q">2) In which situations do you wear fragrance? (Select up to 3)</div>
-        <div class="qmeta"><div>Determines “role allocation” (daily / work / evening).</div><div class="limit">Multi (max 3)</div></div>
-        <div class="grid grid-3">
-          <div class="opt" data-q="scene" data-type="multi" data-max="3" data-val="daily">
-            <div><div class="txt">Daily life</div><div class="mini">Clean / effortless</div></div><div class="mark">✓</div>
-          </div>
-          <div class="opt" data-q="scene" data-type="multi" data-max="3" data-val="work">
-            <div><div class="txt">Work / business</div><div class="mini">Elegant / controlled</div></div><div class="mark">✓</div>
-          </div>
-          <div class="opt" data-q="scene" data-type="multi" data-max="3" data-val="date">
-            <div><div class="txt">Date / dinner</div><div class="mini">Warm / attractive</div></div><div class="mark">✓</div>
-          </div>
-          <div class="opt" data-q="scene" data-type="multi" data-max="3" data-val="travel">
-            <div><div class="txt">Travel / holiday</div><div class="mini">Airy / freedom</div></div><div class="mark">✓</div>
-          </div>
-          <div class="opt" data-q="scene" data-type="multi" data-max="3" data-val="sport">
-            <div><div class="txt">Sport / active</div><div class="mini">Fresh / light</div></div><div class="mark">✓</div>
-          </div>
-          <div class="opt" data-q="scene" data-type="multi" data-max="3" data-val="event">
-            <div><div class="txt">Formal event</div><div class="mini">Statement / bold</div></div><div class="mark">✓</div>
-          </div>
+        <div class="footer">
+          <button class="btn ghost" type="button" id="back0" disabled>Back</button>
+          <div class="note" id="note0"><span class="warn">Please select one option.</span></div>
+          <button class="btn primary" type="button" id="next0" disabled>Next</button>
         </div>
-      </div>
+      </section>
 
-      <!-- Step 3 -->
-      <div class="step" data-step="2">
-        <div class="q">3) Which city do you spend most of the year in?</div>
-        <div class="qmeta"><div>Used for environment adjustment (cool/warm, dry/humid).</div><div class="limit">Input</div></div>
-        <input class="input" id="cityInput" placeholder="e.g., Paris / Tokyo / London / Shanghai / Singapore" />
-        <div class="qmeta" style="margin-top:10px"><div>You can leave it blank for demo.</div><div class="limit">Optional</div></div>
-      </div>
-
-      <!-- Step 4 -->
-      <div class="step" data-step="3">
-        <div class="q">4) Which scent atmospheres do you prefer? (Select up to 2)</div>
-        <div class="qmeta"><div>Memory-based anchors that quickly narrow direction.</div><div class="limit">Multi (max 2)</div></div>
-        <div class="grid grid-3">
-          <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="rain"><div class="txt">After the rain</div><div class="mark">✓</div></div>
-          <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="coffee"><div class="txt">Coffee & vanilla</div><div class="mark">✓</div></div>
-          <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="paper"><div class="txt">Books & woods</div><div class="mark">✓</div></div>
-          <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="whitefloral"><div class="txt">Rose & white flowers</div><div class="mark">✓</div></div>
-          <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="citrus"><div class="txt">Citrus & sunshine</div><div class="mark">✓</div></div>
-          <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="bread"><div class="txt">Freshly baked bread</div><div class="mark">✓</div></div>
-          <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="oldwood"><div class="txt">Old wooden furniture</div><div class="mark">✓</div></div>
-          <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="laundry"><div class="txt">Clean laundry</div><div class="mark">✓</div></div>
+      <!-- Card 2 -->
+      <section class="card" data-step="1">
+        <div class="hero">
+          <p class="title">Usage Context</p>
+          <p class="hint">Select where you actually wear fragrance.</p>
         </div>
-      </div>
-
-      <!-- Step 5 -->
-      <div class="step" data-step="4">
-        <div class="q">5) Which scent families attract you most? (Select up to 2)</div>
-        <div class="qmeta"><div>Primary scent-family preference.</div><div class="limit">Multi (max 2)</div></div>
-        <div class="grid grid-3">
-          <div class="opt" data-q="family" data-type="multi" data-max="2" data-val="citrus"><div class="txt">Citrus</div><div class="mini">bright / crisp</div></div><div class="mark">✓</div></div>
-          <div class="opt" data-q="family" data-type="multi" data-max="2" data-val="floral"><div class="txt">Floral</div><div class="mini">petal / soft</div></div><div class="mark">✓</div></div>
-          <div class="opt" data-q="family" data-type="multi" data-max="2" data-val="amber"><div class="txt">Amber / sweet</div><div class="mini">warm / comforting</div></div><div class="mark">✓</div></div>
-          <div class="opt" data-q="family" data-type="multi" data-max="2" data-val="woody"><div class="txt">Woody</div><div class="mini">dry / structured</div></div><div class="mark">✓</div></div>
-          <div class="opt" data-q="family" data-type="multi" data-max="2" data-val="green"><div class="txt">Green / herbal</div><div class="mini">airy / natural</div></div><div class="mark">✓</div></div>
-        </div>
-      </div>
-
-      <!-- Step 6 (conditional) -->
-      <div class="step" data-step="5">
-        <div class="q" id="q6Title">6) Preference detail</div>
-        <div class="qmeta"><div id="q6Hint">This question adapts to your selection in Step 5.</div><div class="limit">Single choice</div></div>
-
-        <!-- Sweetness -->
-        <div id="sweetBlock" style="display:none">
-          <div class="qmeta" style="margin-top:0"><div><b>Sweetness tolerance</b> (for Citrus / Floral / Amber)</div><div class="limit">Single</div></div>
+        <div class="body">
+          <div class="q">2) In which situations do you wear fragrance? (Up to 3)</div>
+          <div class="qmeta"><div>Builds your “use-case profile”.</div><div class="limit">Multi (max 3)</div></div>
           <div class="grid grid-3">
-            <div class="opt" data-q="sweetness" data-type="single" data-val="none"><div class="txt">Not at all</div><div class="mini">dry / clean</div></div><div class="mark">✓</div></div>
-            <div class="opt" data-q="sweetness" data-type="single" data-val="light"><div class="txt">Light</div><div class="mini">a touch of sweetness</div></div><div class="mark">✓</div></div>
-            <div class="opt" data-q="sweetness" data-type="single" data-val="medium"><div class="txt">Moderate</div><div class="mini">balanced</div></div><div class="mark">✓</div></div>
-            <div class="opt" data-q="sweetness" data-type="single" data-val="high"><div class="txt">Sweet</div><div class="mini">comforting / gourmand</div></div><div class="mark">✓</div></div>
+            <div class="opt" data-q="scene" data-type="multi" data-max="3" data-val="daily"><div class="txt">Daily life</div><div class="mini">clean / effortless</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="scene" data-type="multi" data-max="3" data-val="work"><div class="txt">Work / business</div><div class="mini">controlled / elegant</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="scene" data-type="multi" data-max="3" data-val="date"><div class="txt">Date / dinner</div><div class="mini">warm / attractive</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="scene" data-type="multi" data-max="3" data-val="travel"><div class="txt">Travel</div><div class="mini">airy / free</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="scene" data-type="multi" data-max="3" data-val="sport"><div class="txt">Sport / active</div><div class="mini">fresh / light</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="scene" data-type="multi" data-max="3" data-val="event"><div class="txt">Formal event</div><div class="mini">statement / bold</div><div class="mark">✓</div></div>
           </div>
         </div>
+        <div class="footer">
+          <button class="btn ghost" type="button" id="back1">Back</button>
+          <div class="note" id="note1"><span class="warn">Select at least one context.</span></div>
+          <button class="btn primary" type="button" id="next1" disabled>Next</button>
+        </div>
+      </section>
 
-        <!-- Smoky -->
-        <div id="smokyBlock" style="display:none;margin-top:14px">
-          <div class="qmeta" style="margin-top:0"><div><b>Smoky / leather / oud tolerance</b> (for Woody / Green)</div><div class="limit">Single</div></div>
+      <!-- Card 3 -->
+      <section class="card" data-step="2">
+        <div class="hero">
+          <p class="title">City Profile</p>
+          <p class="hint">Optional—helps environment tuning.</p>
+        </div>
+        <div class="body">
+          <div class="q">3) Which city do you spend most of the year in? (Optional)</div>
+          <div class="qmeta"><div>Used for cool/warm & dry/humid adjustments.</div><div class="limit">Input</div></div>
+          <input class="input" id="cityInput" placeholder="e.g., Paris / Tokyo / London / Shanghai / Singapore" />
+          <div class="qmeta" style="margin-top:10px"><div>You can skip for demo.</div><div class="limit">Optional</div></div>
+        </div>
+        <div class="footer">
+          <button class="btn ghost" type="button" id="back2">Back</button>
+          <div class="note" id="note2"><span class="ok">You can continue.</span></div>
+          <button class="btn primary" type="button" id="next2">Next</button>
+        </div>
+      </section>
+
+      <!-- Card 4 -->
+      <section class="card" data-step="3">
+        <div class="hero">
+          <p class="title">Atmospheres</p>
+          <p class="hint">Memory anchors to narrow direction.</p>
+        </div>
+        <div class="body">
+          <div class="q">4) Which scent atmospheres do you prefer? (Up to 2)</div>
+          <div class="qmeta"><div>Pick 1–2 that feel most “you”.</div><div class="limit">Multi (max 2)</div></div>
           <div class="grid grid-3">
-            <div class="opt" data-q="smoky" data-type="single" data-val="none"><div class="txt">Not at all</div><div class="mini">clean woods</div></div><div class="mark">✓</div></div>
-            <div class="opt" data-q="smoky" data-type="single" data-val="low"><div class="txt">A little</div><div class="mini">subtle depth</div></div><div class="mark">✓</div></div>
-            <div class="opt" data-q="smoky" data-type="single" data-val="medium"><div class="txt">Moderate</div><div class="mini">noticeable</div></div><div class="mark">✓</div></div>
-            <div class="opt" data-q="smoky" data-type="single" data-val="high"><div class="txt">I love it</div><div class="mini">bold & smoky</div></div><div class="mark">✓</div></div>
+            <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="rain"><div class="txt">After the rain</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="coffee"><div class="txt">Coffee & vanilla</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="paper"><div class="txt">Books & woods</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="whitefloral"><div class="txt">Rose & white flowers</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="citrus"><div class="txt">Citrus & sunshine</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="bread"><div class="txt">Freshly baked bread</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="oldwood"><div class="txt">Old wooden furniture</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="vibe" data-type="multi" data-max="2" data-val="laundry"><div class="txt">Clean laundry</div><div class="mark">✓</div></div>
           </div>
         </div>
-      </div>
-
-      <!-- Step 7 -->
-      <div class="step" data-step="6">
-        <div class="q">7) Do you prefer fresh or intense scents?</div>
-        <div class="qmeta"><div>Used to tune projection & richness.</div><div class="limit">Single choice</div></div>
-        <div class="grid grid-3">
-          <div class="opt" data-q="intensity" data-type="single" data-val="very-fresh"><div><div class="txt">Very fresh</div><div class="mini">airy / clean</div></div><div class="mark">✓</div></div>
-          <div class="opt" data-q="intensity" data-type="single" data-val="balanced"><div><div class="txt">Balanced</div><div class="mini">versatile</div></div><div class="mark">✓</div></div>
-          <div class="opt" data-q="intensity" data-type="single" data-val="rich"><div><div class="txt">More intense</div><div class="mini">deeper</div></div><div class="mark">✓</div></div>
-          <div class="opt" data-q="intensity" data-type="single" data-val="very-rich"><div><div class="txt">Very intense</div><div class="mini">statement</div></div><div class="mark">✓</div></div>
+        <div class="footer">
+          <button class="btn ghost" type="button" id="back3">Back</button>
+          <div class="note" id="note3"><span class="warn">Select 1–2 atmospheres.</span></div>
+          <button class="btn primary" type="button" id="next3" disabled>Next</button>
         </div>
-      </div>
+      </section>
 
-      <!-- Step 8 -->
-      <div class="step" data-step="7">
-        <div class="q">8) What impression do you want to leave?</div>
-        <div class="qmeta"><div>Defines your “scent persona”.</div><div class="limit">Multi (max 2)</div></div>
-        <div class="grid grid-3">
-          <div class="opt" data-q="impression" data-type="multi" data-max="2" data-val="clean">Clean & professional<div class="mark">✓</div></div>
-          <div class="opt" data-q="impression" data-type="multi" data-max="2" data-val="soft">Soft & comforting<div class="mark">✓</div></div>
-          <div class="opt" data-q="impression" data-type="multi" data-max="2" data-val="cool">Cool & luxurious<div class="mark">✓</div></div>
-          <div class="opt" data-q="impression" data-type="multi" data-max="2" data-val="sexy">Seductive<div class="mark">✓</div></div>
-          <div class="opt" data-q="impression" data-type="multi" data-max="2" data-val="relaxed">Relaxed & effortless<div class="mark">✓</div></div>
-          <div class="opt" data-q="impression" data-type="multi" data-max="2" data-val="mysterious">Mysterious & unique<div class="mark">✓</div></div>
+      <!-- Card 5 -->
+      <section class="card" data-step="4">
+        <div class="hero">
+          <p class="title">Scent Families</p>
+          <p class="hint">Your core preference.</p>
         </div>
-      </div>
-
-      <!-- Step 9 (Results) -->
-      <div class="step" data-step="8">
-        <div class="q">Your Results</div>
-        <div class="qmeta"><div>Swipe the cards horizontally on iPad.</div><div class="limit">Top 3</div></div>
-
-        <div class="personaBox">
-          <p class="p1">Your Scent Persona</p>
-          <p class="p2" id="personaLine">—</p>
-          <div class="chips" id="chipLine"></div>
+        <div class="body">
+          <div class="q">5) Which scent families attract you most? (Up to 2)</div>
+          <div class="qmeta"><div>Determines the matching direction.</div><div class="limit">Multi (max 2)</div></div>
+          <div class="grid grid-3">
+            <div class="opt" data-q="family" data-type="multi" data-max="2" data-val="citrus"><div><div class="txt">Citrus</div><div class="mini">bright / crisp</div></div><div class="mark">✓</div></div>
+            <div class="opt" data-q="family" data-type="multi" data-max="2" data-val="floral"><div><div class="txt">Floral</div><div class="mini">petal / soft</div></div><div class="mark">✓</div></div>
+            <div class="opt" data-q="family" data-type="multi" data-max="2" data-val="amber"><div><div class="txt">Amber / sweet</div><div class="mini">warm / comforting</div></div><div class="mark">✓</div></div>
+            <div class="opt" data-q="family" data-type="multi" data-max="2" data-val="woody"><div><div class="txt">Woody</div><div class="mini">dry / structured</div></div><div class="mark">✓</div></div>
+            <div class="opt" data-q="family" data-type="multi" data-max="2" data-val="green"><div><div class="txt">Green / herbal</div><div class="mini">airy / natural</div></div><div class="mark">✓</div></div>
+          </div>
         </div>
-
-        <div class="gallery" id="gallery"></div>
-
-        <div class="ctaRow">
-          <button class="miniBtn" type="button" id="btnRestart">Restart</button>
-          <button class="miniBtn" type="button" id="btnCopy">Copy summary</button>
+        <div class="footer">
+          <button class="btn ghost" type="button" id="back4">Back</button>
+          <div class="note" id="note4"><span class="warn">Select 1–2 families.</span></div>
+          <button class="btn primary" type="button" id="next4" disabled>Next</button>
         </div>
-      </div>
+      </section>
 
-      <div class="controls">
-        <button class="btn ghost" type="button" id="btnBack">Back</button>
-        <div class="note" id="note">Select options to continue.</div>
-        <button class="btn primary" type="button" id="btnNext">Next</button>
-      </div>
+      <!-- Card 6 (Conditional) -->
+      <section class="card" data-step="5">
+        <div class="hero">
+          <p class="title">Preference Detail</p>
+          <p class="hint">This question adapts to your selection.</p>
+        </div>
+        <div class="body">
+          <div class="q">6) A quick calibration</div>
+          <div class="qmeta"><div id="calibHint">Based on your families from the previous step.</div><div class="limit">Single</div></div>
+
+          <div id="sweetBlock" style="display:none">
+            <div class="qmeta" style="margin-top:0"><div><b>Sweetness tolerance</b> (Citrus / Floral / Amber)</div><div class="limit">Single</div></div>
+            <div class="grid grid-3">
+              <div class="opt" data-q="sweetness" data-type="single" data-val="none"><div><div class="txt">Not at all</div><div class="mini">dry / clean</div></div><div class="mark">✓</div></div>
+              <div class="opt" data-q="sweetness" data-type="single" data-val="light"><div><div class="txt">Light</div><div class="mini">a touch of sweetness</div></div><div class="mark">✓</div></div>
+              <div class="opt" data-q="sweetness" data-type="single" data-val="medium"><div><div class="txt">Moderate</div><div class="mini">balanced</div></div><div class="mark">✓</div></div>
+              <div class="opt" data-q="sweetness" data-type="single" data-val="high"><div><div class="txt">Sweet</div><div class="mini">gourmand leaning</div></div><div class="mark">✓</div></div>
+            </div>
+          </div>
+
+          <div id="smokyBlock" style="display:none;margin-top:14px">
+            <div class="qmeta" style="margin-top:0"><div><b>Smoky / leather / oud tolerance</b> (Woody / Green)</div><div class="limit">Single</div></div>
+            <div class="grid grid-3">
+              <div class="opt" data-q="smoky" data-type="single" data-val="none"><div><div class="txt">Not at all</div><div class="mini">clean woods</div></div><div class="mark">✓</div></div>
+              <div class="opt" data-q="smoky" data-type="single" data-val="low"><div><div class="txt">A little</div><div class="mini">subtle depth</div></div><div class="mark">✓</div></div>
+              <div class="opt" data-q="smoky" data-type="single" data-val="medium"><div><div class="txt">Moderate</div><div class="mini">noticeable</div></div><div class="mark">✓</div></div>
+              <div class="opt" data-q="smoky" data-type="single" data-val="high"><div><div class="txt">I love it</div><div class="mini">bold & smoky</div></div><div class="mark">✓</div></div>
+            </div>
+          </div>
+
+          <div class="qmeta" style="margin-top:14px">
+            <div>If neither block appears, you can continue.</div>
+            <div class="limit">Adaptive</div>
+          </div>
+        </div>
+        <div class="footer">
+          <button class="btn ghost" type="button" id="back5">Back</button>
+          <div class="note" id="note5"><span class="ok">Continue when ready.</span></div>
+          <button class="btn primary" type="button" id="next5">Next</button>
+        </div>
+      </section>
+
+      <!-- Card 7 -->
+      <section class="card" data-step="6">
+        <div class="hero">
+          <p class="title">Intensity</p>
+          <p class="hint">Controls freshness vs richness.</p>
+        </div>
+        <div class="body">
+          <div class="q">7) Do you prefer fresh or intense scents?</div>
+          <div class="qmeta"><div>Tunes projection & richness.</div><div class="limit">Single</div></div>
+          <div class="grid grid-3">
+            <div class="opt" data-q="intensity" data-type="single" data-val="very-fresh"><div><div class="txt">Very fresh</div><div class="mini">airy / clean</div></div><div class="mark">✓</div></div>
+            <div class="opt" data-q="intensity" data-type="single" data-val="balanced"><div><div class="txt">Balanced</div><div class="mini">versatile</div></div><div class="mark">✓</div></div>
+            <div class="opt" data-q="intensity" data-type="single" data-val="rich"><div><div class="txt">More intense</div><div class="mini">deeper</div></div><div class="mark">✓</div></div>
+            <div class="opt" data-q="intensity" data-type="single" data-val="very-rich"><div><div class="txt">Very intense</div><div class="mini">statement</div></div><div class="mark">✓</div></div>
+          </div>
+        </div>
+        <div class="footer">
+          <button class="btn ghost" type="button" id="back6">Back</button>
+          <div class="note" id="note6"><span class="warn">Please select one option.</span></div>
+          <button class="btn primary" type="button" id="next6" disabled>Next</button>
+        </div>
+      </section>
+
+      <!-- Card 8 -->
+      <section class="card" data-step="7">
+        <div class="hero">
+          <p class="title">Impression</p>
+          <p class="hint">Defines your scent persona.</p>
+        </div>
+        <div class="body">
+          <div class="q">8) What impression do you want to leave? (Up to 2)</div>
+          <div class="qmeta"><div>Pick the most important two.</div><div class="limit">Multi (max 2)</div></div>
+          <div class="grid grid-3">
+            <div class="opt" data-q="impression" data-type="multi" data-max="2" data-val="clean"><div class="txt">Clean & professional</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="impression" data-type="multi" data-max="2" data-val="soft"><div class="txt">Soft & comforting</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="impression" data-type="multi" data-max="2" data-val="cool"><div class="txt">Cool & luxurious</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="impression" data-type="multi" data-max="2" data-val="sexy"><div class="txt">Seductive</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="impression" data-type="multi" data-max="2" data-val="relaxed"><div class="txt">Relaxed & effortless</div><div class="mark">✓</div></div>
+            <div class="opt" data-q="impression" data-type="multi" data-max="2" data-val="mysterious"><div class="txt">Mysterious & unique</div><div class="mark">✓</div></div>
+          </div>
+        </div>
+        <div class="footer">
+          <button class="btn ghost" type="button" id="back7">Back</button>
+          <div class="note" id="note7"><span class="warn">Select up to 2 impressions.</span></div>
+          <button class="btn primary" type="button" id="next7" disabled>See results</button>
+        </div>
+      </section>
+
+      <!-- Results Card -->
+      <section class="card" data-step="8">
+        <div class="hero">
+          <p class="title">Your Results</p>
+          <p class="hint">Swipe the cards on iPad. This is a demo recommender based on your selections.</p>
+        </div>
+        <div class="body">
+          <div class="personaBox">
+            <p class="p1">Your Scent Persona</p>
+            <p class="p2" id="personaLine">—</p>
+            <div class="chips" id="chipLine"></div>
+          </div>
+
+          <div class="gallery" id="gallery"></div>
+
+          <div class="ctaRow">
+            <button class="miniBtn" type="button" id="btnRestart">Restart</button>
+            <button class="miniBtn" type="button" id="btnCopy">Copy summary</button>
+          </div>
+        </div>
+        <div class="footer">
+          <button class="btn ghost" type="button" id="back8">Back</button>
+          <div class="note"><span class="ok">Done.</span></div>
+          <button class="btn primary" type="button" id="next8" disabled>Done</button>
+        </div>
+      </section>
+
     </div>
   </div>
 
@@ -362,123 +488,153 @@
   </div>
 
   <script>
-    // ---------- State ----------
+    // ---------------- State ----------------
     const state = {
-      level: null,                 // beginner | expert
-      scene: [],                   // up to 3
+      level: null,
+      scene: [],
       city: "",
-      vibe: [],                    // up to 2
-      family: [],                  // up to 2
-      sweetness: null,             // none | light | medium | high
-      smoky: null,                 // none | low | medium | high
-      intensity: null,             // very-fresh | balanced | rich | very-rich
-      impression: []               // up to 2
+      vibe: [],
+      family: [],
+      sweetness: null,
+      smoky: null,
+      intensity: null,
+      impression: []
     };
 
-    const steps = Array.from(document.querySelectorAll(".step"));
-    const totalSteps = steps.length; // 9
-    let current = 0;
+    const cards = Array.from(document.querySelectorAll(".card"));
+    const total = 8; // questions count (results not counted)
+    let step = 0;
 
-    const elStepText = document.getElementById("stepText");
-    const elBarFill  = document.getElementById("barFill");
-    const elNote     = document.getElementById("note");
-    const btnBack    = document.getElementById("btnBack");
-    const btnNext    = document.getElementById("btnNext");
-
-    const toast       = document.getElementById("toast");
-    const toastMsg    = document.getElementById("toastMsg");
-    const toastBtn    = document.getElementById("toastBtn");
+    const stepText = document.getElementById("stepText");
+    const barFill  = document.getElementById("barFill");
 
     const cityInput = document.getElementById("cityInput");
-
-    // Conditional blocks
     const sweetBlock = document.getElementById("sweetBlock");
     const smokyBlock = document.getElementById("smokyBlock");
 
-    // Results
-    const personaLine = document.getElementById("personaLine");
-    const chipLine    = document.getElementById("chipLine");
-    const gallery     = document.getElementById("gallery");
-    const btnRestart  = document.getElementById("btnRestart");
-    const btnCopy     = document.getElementById("btnCopy");
+    const toast = document.getElementById("toast");
+    const toastMsg = document.getElementById("toastMsg");
+    const toastBtn = document.getElementById("toastBtn");
 
-    // ---------- Helpers ----------
+    const personaLine = document.getElementById("personaLine");
+    const chipLine = document.getElementById("chipLine");
+    const gallery = document.getElementById("gallery");
+
+    const btnRestart = document.getElementById("btnRestart");
+    const btnCopy = document.getElementById("btnCopy");
+
     function showToast(msg){
       toastMsg.textContent = msg;
       toast.style.display = "block";
       toastBtn.onclick = () => (toast.style.display = "none");
-      setTimeout(() => { toast.style.display = "none"; }, 2200);
-    }
-
-    function setStep(i){
-      current = Math.max(0, Math.min(totalSteps - 1, i));
-      steps.forEach(s => s.classList.remove("active"));
-      steps[current].classList.add("active");
-      elStepText.textContent = `Step ${current + 1} / ${totalSteps}`;
-      elBarFill.style.width = `${((current) / (totalSteps - 1)) * 100}%`;
-
-      btnBack.disabled = current === 0;
-      btnNext.textContent = (current === totalSteps - 1) ? "Done" : (current === totalSteps - 2 ? "See results" : "Next");
-
-      refreshNoteAndNext();
-      if (current === totalSteps - 1) btnNext.disabled = true;
-
-      // focus
-      if (current === 2) { setTimeout(() => cityInput.focus(), 100); }
-      window.scrollTo({top:0, behavior:"smooth"});
-    }
-
-    function refreshNoteAndNext(){
-      // Validate minimal completion per step (except optional city)
-      let ok = true;
-      let msg = "Select options to continue.";
-
-      if (current === 0 && !state.level){ ok=false; msg="Please select one option."; }
-      if (current === 1 && state.scene.length === 0){ ok=false; msg="Select at least one context."; }
-      if (current === 2){ ok=true; msg="Optional — you can skip."; }
-      if (current === 3 && state.vibe.length === 0){ ok=false; msg="Select 1–2 atmospheres."; }
-      if (current === 4 && state.family.length === 0){ ok=false; msg="Select 1–2 scent families."; }
-
-      if (current === 5){
-        // conditional required if block shown
-        const needsSweet = shouldAskSweetness();
-        const needsSmoky = shouldAskSmoky();
-        if (needsSweet && !state.sweetness){ ok=false; msg="Select your sweetness tolerance."; }
-        if (needsSmoky && !state.smoky){ ok=false; msg="Select your smoky tolerance."; }
-        if (!needsSweet && !needsSmoky){ ok=true; msg="Optional — you can continue."; }
-      }
-
-      if (current === 6 && !state.intensity){ ok=false; msg="Please select one option."; }
-      if (current === 7 && state.impression.length === 0){ ok=false; msg="Select up to 2 impressions."; }
-
-      btnNext.disabled = !ok;
-      elNote.innerHTML = ok ? `<span class="ok">Ready.</span>` : `<span class="warn">${msg}</span>`;
+      setTimeout(() => { toast.style.display = "none"; }, 1800);
     }
 
     function shouldAskSweetness(){
-      // Sweetness relevant for Citrus / Floral / Amber
       return state.family.some(x => ["citrus","floral","amber"].includes(x));
     }
     function shouldAskSmoky(){
-      // Smoky relevant for Woody / Green
       return state.family.some(x => ["woody","green"].includes(x));
     }
 
-    function updateConditionalStep(){
+    function updateConditional(){
       const sweet = shouldAskSweetness();
       const smoky = shouldAskSmoky();
       sweetBlock.style.display = sweet ? "block" : "none";
       smokyBlock.style.display = smoky ? "block" : "none";
-
-      // If not needed, clear to avoid bias
       if (!sweet) state.sweetness = null;
       if (!smoky) state.smoky = null;
 
-      // Update the visual selection state in conditional blocks
       document.querySelectorAll('[data-q="sweetness"]').forEach(el => el.classList.toggle("on", el.dataset.val === state.sweetness));
       document.querySelectorAll('[data-q="smoky"]').forEach(el => el.classList.toggle("on", el.dataset.val === state.smoky));
+      validateCard(5);
     }
 
+    function setProgress(questionIndex){
+      // questionIndex is 0..7; results card is 8
+      if (questionIndex <= 7){
+        stepText.textContent = `${questionIndex + 1} / ${total}`;
+        barFill.style.width = `${(questionIndex / (total - 1)) * 100}%`;
+      } else {
+        stepText.textContent = `${total} / ${total}`;
+        barFill.style.width = `100%`;
+      }
+    }
+
+    function showCard(idx){
+      cards.forEach(c => c.classList.remove("active","exitLeft"));
+      const current = cards[idx];
+      current.classList.add("active");
+      step = idx;
+      setProgress(Math.min(idx, 7));
+      window.scrollTo({top:0, behavior:"smooth"});
+      if (idx === 2) setTimeout(() => cityInput.focus(), 120);
+    }
+
+    function goNext(){
+      const cur = step;
+      // animate exit
+      cards[cur].classList.add("exitLeft");
+      setTimeout(() => {
+        showCard(cur + 1);
+      }, 180);
+    }
+
+    function goBack(){
+      const cur = step;
+      showCard(Math.max(0, cur - 1));
+    }
+
+    // ---------------- Validation per card ----------------
+    function setNote(cardIdx, ok, text){
+      const n = document.getElementById(`note${cardIdx}`);
+      const next = document.getElementById(`next${cardIdx}`);
+      if (!n || !next) return;
+      n.innerHTML = ok ? `<span class="ok">${text || "Ready."}</span>` : `<span class="warn">${text}</span>`;
+      next.disabled = !ok;
+    }
+
+    function validateCard(cardIdx){
+      // cardIdx corresponds to question steps 0..7
+      if (cardIdx === 0){
+        const ok = !!state.level;
+        setNote(0, ok, ok ? "Ready." : "Please select one option.");
+      }
+      if (cardIdx === 1){
+        const ok = state.scene.length > 0;
+        setNote(1, ok, ok ? "Ready." : "Select at least one context.");
+      }
+      if (cardIdx === 2){
+        setNote(2, true, "You can continue.");
+      }
+      if (cardIdx === 3){
+        const ok = state.vibe.length > 0;
+        setNote(3, ok, ok ? "Ready." : "Select 1–2 atmospheres.");
+      }
+      if (cardIdx === 4){
+        const ok = state.family.length > 0;
+        setNote(4, ok, ok ? "Ready." : "Select 1–2 families.");
+      }
+      if (cardIdx === 5){
+        const needSweet = shouldAskSweetness();
+        const needSmoky = shouldAskSmoky();
+        let ok = true;
+        let msg = "You can continue.";
+        if (needSweet && !state.sweetness){ ok = false; msg = "Select your sweetness tolerance."; }
+        if (needSmoky && !state.smoky){ ok = false; msg = "Select your smoky tolerance."; }
+        setNote(5, ok, msg);
+      }
+      if (cardIdx === 6){
+        const ok = !!state.intensity;
+        setNote(6, ok, ok ? "Ready." : "Please select one option.");
+      }
+      if (cardIdx === 7){
+        const ok = state.impression.length > 0;
+        setNote(7, ok, ok ? "Ready." : "Select up to 2 impressions.");
+      }
+    }
+
+    // ---------------- Option toggles ----------------
     function toggleOption(el){
       const q = el.dataset.q;
       const type = el.dataset.type;
@@ -507,24 +663,47 @@
         state[q] = arr;
       }
 
-      if (q === "family") updateConditionalStep();
-      refreshNoteAndNext();
+      // conditional refresh
+      if (q === "family") updateConditional();
+
+      // validate current card
+      validateCard(step);
+
+      // Auto-advance: single-choice cards advance immediately (after a tiny delay)
+      const autoAdvanceSingles = new Set([0, 6]); // level, intensity
+      if (type === "single" && autoAdvanceSingles.has(step)){
+        const nextBtn = document.getElementById(`next${step}`);
+        if (nextBtn && !nextBtn.disabled){
+          setTimeout(() => nextBtn.click(), 180);
+        }
+      }
     }
 
-    function bindOptions(){
-      document.querySelectorAll(".opt").forEach(el => {
-        el.addEventListener("click", () => toggleOption(el), {passive:true});
+    document.querySelectorAll(".opt").forEach(el => {
+      el.addEventListener("click", () => toggleOption(el), {passive:true});
+    });
+
+    // city input
+    cityInput.addEventListener("input", () => { state.city = cityInput.value.trim(); });
+
+    // ---------------- Buttons (Back/Next) ----------------
+    for (let i=0;i<=8;i++){
+      const b = document.getElementById(`back${i}`);
+      const n = document.getElementById(`next${i}`);
+      if (b) b.addEventListener("click", () => goBack());
+      if (n) n.addEventListener("click", () => {
+        if (i === 7){
+          // going to results
+          renderResults();
+          goNext();
+        } else if (i < 8){
+          if (i === 4) updateConditional();
+          goNext();
+        }
       });
     }
 
-    function bindInputs(){
-      cityInput.addEventListener("input", () => {
-        state.city = cityInput.value.trim();
-      });
-    }
-
-    // ---------- Scoring & Matching ----------
-    // Note: This is a demo recommender. It uses heuristic weights based on your questionnaire.
+    // ---------------- Matching ----------------
     const scents = [
       {
         key:"lazy_sunday_morning",
@@ -595,11 +774,11 @@
     function buildUserVector(){
       const v = { fresh:0, floral:0, amber:0, woody:0, green:0, clean:0, sweet:0, smoky:0, bold:0 };
 
-      // Level
+      // level
       if (state.level === "beginner"){ v.clean += 1; v.bold -= 1; }
       if (state.level === "expert"){ v.bold += 1; }
 
-      // Scene
+      // scene
       const s = new Set(state.scene);
       if (s.has("daily")){ v.clean += 2; v.fresh += 1; }
       if (s.has("work")){ v.clean += 1; v.woody += 1; }
@@ -608,7 +787,7 @@
       if (s.has("sport")){ v.fresh += 2; v.clean += 1; }
       if (s.has("event")){ v.bold += 2; v.amber += 1; v.woody += 1; }
 
-      // Vibe
+      // vibe
       const vibeMap = {
         rain: { fresh:2, green:1 },
         coffee: { amber:2, sweet:1 },
@@ -625,7 +804,7 @@
         Object.keys(m).forEach(k => v[k] += m[k]);
       });
 
-      // Family
+      // family
       state.family.forEach(x => {
         if (x === "citrus") v.fresh += 3;
         if (x === "floral") v.floral += 3;
@@ -634,21 +813,20 @@
         if (x === "green") v.green += 3;
       });
 
-      // Sweetness tolerance
+      // sweetness / smoky
       const sweetMap = { none:0, light:1, medium:2, high:3 };
       if (state.sweetness) v.sweet += sweetMap[state.sweetness] ?? 0;
 
-      // Smoky tolerance
       const smokyMap = { none:0, low:1, medium:2, high:3 };
       if (state.smoky) v.smoky += smokyMap[state.smoky] ?? 0;
 
-      // Intensity
+      // intensity
       if (state.intensity === "very-fresh"){ v.fresh += 2; v.bold -= 1; }
       if (state.intensity === "balanced"){ v.fresh += 1; v.amber += 1; }
       if (state.intensity === "rich"){ v.amber += 2; v.bold += 1; }
       if (state.intensity === "very-rich"){ v.amber += 3; v.bold += 2; v.woody += 1; }
 
-      // Impression
+      // impression
       const imp = new Set(state.impression);
       if (imp.has("clean")){ v.clean += 2; v.fresh += 1; }
       if (imp.has("soft")){ v.floral += 1; v.clean += 1; }
@@ -657,7 +835,7 @@
       if (imp.has("relaxed")){ v.fresh += 1; v.green += 1; }
       if (imp.has("mysterious")){ v.woody += 1; v.smoky += 1; v.bold += 1; }
 
-      // City (light heuristic)
+      // city (light heuristic)
       const c = (state.city || "").toLowerCase();
       if (c.includes("paris")){ v.floral += 1; v.clean += 1; }
       if (c.includes("tokyo")){ v.clean += 2; v.fresh += 1; }
@@ -669,30 +847,20 @@
     }
 
     function scoreScent(userV, scent){
-      // dot product with slight penalties for mismatch extremes
       let score = 0;
-      for (const k in scent.vec){
-        score += (userV[k] || 0) * (scent.vec[k] || 0);
-      }
-      // penalty: if user hates smoky but scent is smoky
+      for (const k in scent.vec) score += (userV[k] || 0) * (scent.vec[k] || 0);
       if ((userV.smoky || 0) === 0 && scent.vec.smoky >= 2) score -= 6;
-      // penalty: if user hates sweet but scent is gourmand
       if ((userV.sweet || 0) === 0 && scent.vec.sweet >= 2) score -= 5;
       return score;
     }
 
     function buildPersona(userV){
-      const parts = [];
-
-      // Context label
       const s = new Set(state.scene);
       let context = "Everyday";
       if (s.has("work") && !s.has("event") && !s.has("date")) context = "Work-ready";
       if (s.has("date") || s.has("event")) context = "Evening";
       if (s.has("travel")) context = "Travel";
-      parts.push(context);
 
-      // Core direction
       const core = Object.entries({
         Clean: userV.clean,
         Fresh: userV.fresh,
@@ -700,13 +868,9 @@
         Woody: userV.woody,
         Amber: userV.amber
       }).sort((a,b)=>b[1]-a[1])[0][0];
-      parts.push(core);
 
-      // Attitude
       const att = (userV.bold >= 3) ? "Statement" : (userV.clean >= 4 ? "Minimal" : "Balanced");
-      parts.push(att);
-
-      return parts.join(" · ");
+      return `${context} · ${core} · ${att}`;
     }
 
     function renderResults(){
@@ -716,27 +880,20 @@
         .sort((a,b)=>b._score-a._score);
 
       const top3 = ranked.slice(0,3);
-      const persona = buildPersona(userV);
+      personaLine.textContent = buildPersona(userV);
 
-      personaLine.textContent = persona;
-
-      // chips summary
       chipLine.innerHTML = "";
       const chips = [];
-      if (state.level) chips.push(state.level === "beginner" ? "First-time user" : "Experienced");
-      if (state.scene.length) chips.push(...state.scene.map(x => ({
-        daily:"Daily life", work:"Work", date:"Date", travel:"Travel", sport:"Sport", event:"Event"
+      chips.push(state.level === "beginner" ? "First-time" : "Experienced");
+      chips.push(...(state.scene || []).map(x => ({
+        daily:"Daily", work:"Work", date:"Date", travel:"Travel", sport:"Sport", event:"Event"
       }[x])));
-      if (state.family.length) chips.push(...state.family.map(x => ({
-        citrus:"Citrus", floral:"Floral", amber:"Amber/Sweet", woody:"Woody", green:"Green/Herbal"
+      chips.push(...(state.family || []).map(x => ({
+        citrus:"Citrus", floral:"Floral", amber:"Amber", woody:"Woody", green:"Green"
       }[x])));
       if (state.intensity) chips.push({
-        "very-fresh":"Very fresh", "balanced":"Balanced", "rich":"More intense", "very-rich":"Very intense"
+        "very-fresh":"Very fresh", "balanced":"Balanced", "rich":"Intense", "very-rich":"Very intense"
       }[state.intensity]);
-      if (state.impression.length) chips.push(...state.impression.map(x => ({
-        clean:"Clean", soft:"Soft", cool:"Cool", sexy:"Seductive", relaxed:"Relaxed", mysterious:"Mysterious"
-      }[x])));
-
       chips.slice(0,10).forEach(t => {
         const d = document.createElement("div");
         d.className = "chip";
@@ -744,7 +901,6 @@
         chipLine.appendChild(d);
       });
 
-      // cards
       gallery.innerHTML = "";
       top3.forEach((p, idx) => {
         const card = document.createElement("div");
@@ -775,26 +931,141 @@
       });
     }
 
-    // ---------- Navigation ----------
-    btnBack.addEventListener("click", () => {
-      if (current > 0) setStep(current - 1);
-    });
-
-    btnNext.addEventListener("click", () => {
-      if (current < totalSteps - 1){
-        // before moving into conditional step, ensure blocks are accurate
-        if (current === 4) updateConditionalStep();
-
-        // If going to results, render
-        if (current === totalSteps - 2){
-          renderResults();
-        }
-        setStep(current + 1);
+    // ---------------- Control wiring ----------------
+    function bindNav(){
+      for (let i=0;i<=8;i++){
+        const back = document.getElementById(`back${i}`);
+        const next = document.getElementById(`next${i}`);
+        if (back) back.addEventListener("click", () => goBack());
+        if (next) next.addEventListener("click", () => {
+          // Special: before leaving family card, update conditional
+          if (i === 4) updateConditional();
+          // Special: when leaving impression card -> results
+          if (i === 7) renderResults();
+          goNext();
+        });
       }
-    });
+    }
 
+    function goNext(){
+      const cur = step;
+      cards[cur].classList.add("exitLeft");
+      setTimeout(() => showCard(cur + 1), 180);
+    }
+    function goBack(){
+      showCard(Math.max(0, step - 1));
+    }
+
+    function showCard(idx){
+      cards.forEach(c => c.classList.remove("active","exitLeft"));
+      const target = cards[idx];
+      if (!target) return;
+      target.classList.add("active");
+      step = idx;
+
+      // progress only counts question cards 0..7; results is 8
+      if (idx <= 7){
+        stepText.textContent = `${idx + 1} / ${total}`;
+        barFill.style.width = `${(idx / (total - 1)) * 100}%`;
+      } else {
+        stepText.textContent = `${total} / ${total}`;
+        barFill.style.width = `100%`;
+      }
+
+      validateCard(Math.min(idx,7));
+      window.scrollTo({top:0, behavior:"smooth"});
+      if (idx === 2) setTimeout(() => cityInput.focus(), 120);
+    }
+
+    // ---------------- Option behavior ----------------
+    function toggleOption(el){
+      const q = el.dataset.q;
+      const type = el.dataset.type;
+      const val = el.dataset.val;
+
+      if (type === "single"){
+        state[q] = val;
+        document.querySelectorAll(`.opt[data-q="${q}"]`).forEach(x => x.classList.remove("on"));
+        el.classList.add("on");
+      } else {
+        const max = parseInt(el.dataset.max || "99", 10);
+        const arr = state[q] || [];
+        const idx = arr.indexOf(val);
+        if (idx >= 0){
+          arr.splice(idx, 1);
+          el.classList.remove("on");
+        } else {
+          if (arr.length >= max){
+            showToast(`Max ${max} selections.`);
+            return;
+          }
+          arr.push(val);
+          el.classList.add("on");
+        }
+        state[q] = arr;
+      }
+
+      if (q === "family") updateConditional();
+
+      validateCard(step);
+
+      // Auto-advance for single-choice cards: card 0 & 6, plus conditional card if only one block shown and chosen
+      if (type === "single"){
+        const nextBtn = document.getElementById(`next${step}`);
+        if (nextBtn && !nextBtn.disabled){
+          setTimeout(() => nextBtn.click(), 160);
+        }
+      }
+    }
+
+    document.querySelectorAll(".opt").forEach(el => el.addEventListener("click", () => toggleOption(el), {passive:true}));
+
+    cityInput.addEventListener("input", () => { state.city = cityInput.value.trim(); });
+
+    // ---------------- Validation functions ----------------
+    function setNote(cardIdx, ok, text){
+      const n = document.getElementById(`note${cardIdx}`);
+      const next = document.getElementById(`next${cardIdx}`);
+      if (!n || !next) return;
+      n.innerHTML = ok ? `<span class="ok">${text || "Ready."}</span>` : `<span class="warn">${text}</span>`;
+      next.disabled = !ok;
+    }
+
+    function validateCard(cardIdx){
+      if (cardIdx === 0){
+        setNote(0, !!state.level, state.level ? "Ready." : "Please select one option.");
+      }
+      if (cardIdx === 1){
+        setNote(1, state.scene.length > 0, state.scene.length ? "Ready." : "Select at least one context.");
+      }
+      if (cardIdx === 2){
+        setNote(2, true, "You can continue.");
+      }
+      if (cardIdx === 3){
+        setNote(3, state.vibe.length > 0, state.vibe.length ? "Ready." : "Select 1–2 atmospheres.");
+      }
+      if (cardIdx === 4){
+        setNote(4, state.family.length > 0, state.family.length ? "Ready." : "Select 1–2 families.");
+      }
+      if (cardIdx === 5){
+        const needSweet = shouldAskSweetness();
+        const needSmoky = shouldAskSmoky();
+        let ok = true;
+        let msg = "You can continue.";
+        if (needSweet && !state.sweetness){ ok = false; msg = "Select your sweetness tolerance."; }
+        if (needSmoky && !state.smoky){ ok = false; msg = "Select your smoky tolerance."; }
+        setNote(5, ok, msg);
+      }
+      if (cardIdx === 6){
+        setNote(6, !!state.intensity, state.intensity ? "Ready." : "Please select one option.");
+      }
+      if (cardIdx === 7){
+        setNote(7, state.impression.length > 0, state.impression.length ? "Ready." : "Select up to 2 impressions.");
+      }
+    }
+
+    // ---------------- Restart / Copy ----------------
     btnRestart.addEventListener("click", () => {
-      // reset state
       state.level = null;
       state.scene = [];
       state.city = "";
@@ -805,13 +1076,13 @@
       state.intensity = null;
       state.impression = [];
 
-      // reset UI
       document.querySelectorAll(".opt").forEach(el => el.classList.remove("on"));
       cityInput.value = "";
       sweetBlock.style.display = "none";
       smokyBlock.style.display = "none";
+
       showToast("Restarted.");
-      setStep(0);
+      showCard(0);
     });
 
     btnCopy.addEventListener("click", async () => {
@@ -826,28 +1097,27 @@
       lines.push(`Smoky: ${state.smoky || "-"}`);
       lines.push(`Intensity: ${state.intensity || "-"}`);
       lines.push(`Impression: ${(state.impression||[]).join(", ") || "-"}`);
-      const txt = lines.join("\n");
+
       try{
-        await navigator.clipboard.writeText(txt);
+        await navigator.clipboard.writeText(lines.join("\n"));
         showToast("Copied to clipboard.");
       }catch(e){
-        showToast("Copy failed. (iPad Safari may block clipboard.)");
+        showToast("Copy blocked by browser (iPad Safari).");
       }
     });
 
-    // ---------- Bind UI ----------
-    bindOptions();
-    bindInputs();
+    // ---------------- init ----------------
+    function showToast(msg){
+      toastMsg.textContent = msg;
+      toast.style.display = "block";
+      toastBtn.onclick = () => (toast.style.display = "none");
+      setTimeout(() => { toast.style.display = "none"; }, 1800);
+    }
 
-    // Keep note updated on load
-    setStep(0);
-
-    // Also update conditional if user edits family then goes back/forth
-    document.addEventListener("click", (e) => {
-      const t = e.target.closest(".opt");
-      if (!t) return;
-      if (t.dataset.q === "family") updateConditionalStep();
-    }, {passive:true});
+    bindNav();
+    showCard(0);
+    updateConditional();
+    validateCard(0);
   </script>
 </body>
 </html>
