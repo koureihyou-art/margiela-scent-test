@@ -490,16 +490,23 @@
   <script>
     // ---------------- State ----------------
     const state = {
-      level: null,
-      scene: [],
-      city: "",
-      vibe: [],
-      family: [],
-      sweetness: null,
-      smoky: null,
-      intensity: null,
-      impression: []
-    };
+  level: null,
+  scene: [],
+  city: "",
+  vibe: [],
+  family: [],
+  sweetness: null,
+  smoky: null,
+  intensity: null,
+  impression: [],
+
+  // NEW: weather snapshot for explanations
+  wx: { temp: null, rh: null, climate: null, label: null },
+
+  // NEW: cache to avoid repeated calls
+  wxCache: {}
+};
+
 
     const cards = Array.from(document.querySelectorAll(".card"));
     const total = 8; // questions count (results not counted)
@@ -702,6 +709,97 @@
         }
       });
     }
+
+   // ---------------- Weather → Climate (no API key) ----------------
+async function hydrateWeatherFromCity(){
+  const city = (state.city || "").trim();
+  if (!city) {
+    state.wx = { temp:null, rh:null, climate:null, label:null };
+    return;
+  }
+
+  // cache hit
+  if (state.wxCache[city]) {
+    state.wx = state.wxCache[city];
+    return;
+  }
+
+  try{
+    // 1) City -> lat/lon
+    const gUrl = `https://geocoding-api.open-meteo.com/v1/search?name=${encodeURIComponent(city)}&count=1&format=json`;
+    const g = await fetch(gUrl).then(r=>r.json());
+    const hit = g?.results?.[0];
+    if (!hit) {
+      state.wx = { temp:null, rh:null, climate:null, label:null };
+      return;
+    }
+
+    // 2) Lat/lon -> current temp + humidity
+    const wUrl = `https://api.open-meteo.com/v1/forecast?latitude=${hit.latitude}&longitude=${hit.longitude}&current=temperature_2m,relative_humidity_2m`;
+    const w = await fetch(wUrl).then(r=>r.json());
+    const temp = w?.current?.temperature_2m;
+    const rh   = w?.current?.relative_humidity_2m;
+
+    const { climate, label } = classifyClimate(temp, rh);
+    const wx = { temp, rh, climate, label };
+
+    state.wx = wx;
+    state.wxCache[city] = wx; // cache
+  }catch(e){
+    state.wx = { temp:null, rh:null, climate:null, label:null };
+  }
+}
+
+// Simple 4-bucket classifier
+function classifyClimate(temp, rh){
+  if (temp == null || rh == null) return { climate:null, label:null };
+
+  const warm  = temp >= 22;   // threshold: warm
+  const humid = rh >= 65;     // threshold: humid
+
+  if (warm && humid)  return { climate:"warm_humid", label:"warm & humid" };
+  if (warm && !humid) return { climate:"warm_dry",   label:"warm & dry" };
+  if (!warm && humid) return { climate:"cool_humid", label:"cool & humid" };
+  return { climate:"cool_dry", label:"cool & dry" };
+}
+
+// ---------------- 3-sentence explanation ----------------
+function climateReason(){
+  const wx = state.wx || {};
+  if (!wx.label || wx.temp == null || wx.rh == null) {
+    return "Based on your location, we kept the match balanced for comfort.";
+  }
+  const t = Math.round(wx.temp);
+  const h = Math.round(wx.rh);
+
+  if (wx.climate === "warm_humid") return `In ${wx.label} weather (${t}°C, ${h}% RH), lighter and fresher scents feel cleaner on skin.`;
+  if (wx.climate === "warm_dry")   return `In ${wx.label} weather (${t}°C, ${h}% RH), crisp fresh notes stay comfortable and not heavy.`;
+  if (wx.climate === "cool_humid") return `In ${wx.label} weather (${t}°C, ${h}% RH), clean musks and soft woods feel refined and cozy.`;
+  return `In ${wx.label} weather (${t}°C, ${h}% RH), warmer notes develop more depth and often last longer.`;
+}
+
+function sceneReason(scene){
+  const s = new Set(scene || []);
+  if (s.has("work")) return "You wear fragrance for work, so a controlled and polished presence matters most.";
+  if (s.has("date") || s.has("event")) return "You wear fragrance for dates/events, so character and memorability matter more.";
+  if (s.has("sport")) return "You wear fragrance in active moments, so freshness and breathability are key.";
+  if (s.has("travel")) return "You wear fragrance while traveling, so versatility and a clean impression help most.";
+  return "You mainly wear fragrance in daily life, so an easy, versatile profile fits best.";
+}
+
+function scentReason(p){
+  // Use your existing vec to explain in 1 line
+  if (p.vec.clean >= 3) return "This scent leans clean and skin-like, staying effortless and close throughout the day.";
+  if (p.vec.fresh >= 3) return "This scent emphasizes airy freshness, keeping it light and breathable on skin.";
+  if (p.vec.amber >= 3) return "This scent adds warm amber comfort, creating a more intimate and cozy trail.";
+  if (p.vec.woody >= 3) return "This scent is built around structured woods, adding depth without feeling messy.";
+  if (p.vec.green >= 3) return "This scent highlights green herbal facets, giving a natural and uplifting feeling.";
+  return "This scent stays balanced across notes, matching multiple parts of your profile.";
+}
+
+function buildReason3(p){
+  return [ climateReason(), sceneReason(state.scene), scentReason(p) ];
+}
 
     // ---------------- Matching ----------------
     const scents = [
@@ -1034,9 +1132,16 @@
             </div>
             <div>
               <p class="sdesc">${p.desc}</p>
-              <div class="tags">
-                ${p.tags.map(t => `<span class="tag">${t}</span>`).join("")}
-              </div>
+
+<div class="sdesc" style="margin-top:10px">
+  <b>Why we recommended this</b><br>
+  ${buildReason3(p).map(line => `• ${line}`).join("<br>")}
+</div>
+
+<div class="tags" style="margin-top:10px">
+  ${p.tags.map(t => `<span class="tag">${t}</span>`).join("")}
+</div>
+
             </div>
           </div>
         `;
@@ -1046,19 +1151,33 @@
 
     // ---------------- Control wiring ----------------
     function bindNav(){
-      for (let i=0;i<=8;i++){
-        const back = document.getElementById(`back${i}`);
-        const next = document.getElementById(`next${i}`);
-        if (back) back.addEventListener("click", () => goBack());
-        if (next) next.addEventListener("click", () => {
-          // Special: before leaving family card, update conditional
-          if (i === 4) updateConditional();
-          // Special: when leaving impression card -> results
-          if (i === 7) renderResults();
-          goNext();
-        });
+  for (let i=0;i<=8;i++){
+    const back = document.getElementById(`back${i}`);
+    const next = document.getElementById(`next${i}`);
+
+    if (back) back.addEventListener("click", () => goBack());
+
+    if (next) next.addEventListener("click", async () => {
+      if (i === 4) updateConditional();
+
+      if (i === 7){
+        // Weather lookup (non-blocking UX)
+        const oldText = next.textContent;
+        next.disabled = true;
+        showToast("Checking local climate…");
+
+        await hydrateWeatherFromCity(); // NEW
+
+        renderResults();
+        next.disabled = false;
+        next.textContent = oldText;
       }
-    }
+
+      goNext();
+    });
+  }
+}
+
 
     function goNext(){
       const cur = step;
@@ -1251,6 +1370,7 @@
   </script>
 </body>
 </html>
+
 
 
 
